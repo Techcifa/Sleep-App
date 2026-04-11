@@ -77,51 +77,51 @@ export default function SleepStats({ entries }: SleepStatsProps) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-stone-200 shadow-sm flex flex-col justify-between">
+      <div className="bg-white dark:bg-stone-900 rounded-2xl p-4 sm:p-6 border border-stone-200 dark:border-stone-800 shadow-sm flex flex-col justify-between">
         <div className="flex items-center gap-2.5 mb-3">
-          <Clock className="w-5 h-5 text-stone-400 stroke-[1.5]" />
-          <span className="text-sm font-medium text-stone-500">Average Duration</span>
+          <Clock className="w-5 h-5 text-stone-400 dark:text-stone-500 stroke-[1.5]" />
+          <span className="text-sm font-medium text-stone-500 dark:text-stone-400">Average Duration</span>
         </div>
         <div>
-          <div className="text-2xl sm:text-3xl font-serif font-medium text-stone-800">{stats.avgHours}h</div>
-          <p className="text-xs text-stone-400 mt-1">per night</p>
+          <div className="text-2xl sm:text-3xl font-serif font-medium text-stone-800 dark:text-stone-100">{stats.avgHours}h</div>
+          <p className="text-xs text-stone-400 dark:text-stone-500 mt-1">per night</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-stone-200 shadow-sm flex flex-col justify-between">
+      <div className="bg-white dark:bg-stone-900 rounded-2xl p-4 sm:p-6 border border-stone-200 dark:border-stone-800 shadow-sm flex flex-col justify-between">
         <div className="flex items-center gap-2.5 mb-3">
           <Star className="w-5 h-5 text-amber-500 stroke-[1.5]" />
-          <span className="text-sm font-medium text-stone-500">Sleep Quality</span>
+          <span className="text-sm font-medium text-stone-500 dark:text-stone-400">Sleep Quality</span>
         </div>
         <div>
-          <div className="text-2xl sm:text-3xl font-serif font-medium text-stone-800">{stats.avgQuality}/5</div>
-          <p className="text-xs text-stone-400 mt-1">across {stats.totalEntries} entries</p>
+          <div className="text-2xl sm:text-3xl font-serif font-medium text-stone-800 dark:text-stone-100">{stats.avgQuality}/5</div>
+          <p className="text-xs text-stone-400 dark:text-stone-500 mt-1">across {stats.totalEntries} entries</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-stone-200 shadow-sm flex flex-col justify-between">
+      <div className="bg-white dark:bg-stone-900 rounded-2xl p-4 sm:p-6 border border-stone-200 dark:border-stone-800 shadow-sm flex flex-col justify-between">
         <div className="flex items-center gap-2.5 mb-3">
-          <Award className="w-5 h-5 text-emerald-600 stroke-[1.5]" />
-          <span className="text-sm font-medium text-stone-500">Best Rest</span>
+          <Award className="w-5 h-5 text-emerald-600 dark:text-emerald-500 stroke-[1.5]" />
+          <span className="text-sm font-medium text-stone-500 dark:text-stone-400">Best Rest</span>
         </div>
         <div>
-          <div className="text-2xl sm:text-3xl font-serif font-medium text-stone-800 break-words">
+          <div className="text-2xl sm:text-3xl font-serif font-medium text-stone-800 dark:text-stone-100 break-words">
             {formatDuration(stats.bestEntry.duration)}
           </div>
-          <p className="text-xs text-stone-400 mt-1">
+          <p className="text-xs text-stone-400 dark:text-stone-500 mt-1">
             Quality rating: {stats.bestEntry.quality}/5
           </p>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-stone-200 shadow-sm flex flex-col justify-between">
+      <div className="bg-white dark:bg-stone-900 rounded-2xl p-4 sm:p-6 border border-stone-200 dark:border-stone-800 shadow-sm flex flex-col justify-between">
         <div className="flex items-center gap-2.5 mb-3">
-          <TrendingUp className="w-5 h-5 text-stone-400 stroke-[1.5]" />
-          <span className="text-sm font-medium text-stone-500">Weekly Trend</span>
+          <TrendingUp className="w-5 h-5 text-stone-400 dark:text-stone-500 stroke-[1.5]" />
+          <span className="text-sm font-medium text-stone-500 dark:text-stone-400">Weekly Trend</span>
         </div>
         <div>
-          <div className="text-2xl sm:text-3xl font-serif font-medium text-stone-800">{stats.recentAvg}h</div>
-          <p className="text-xs text-stone-400 mt-1">
+          <div className="text-2xl sm:text-3xl font-serif font-medium text-stone-800 dark:text-stone-100">{stats.recentAvg}h</div>
+          <p className="text-xs text-stone-400 dark:text-stone-500 mt-1">
             {stats.trend !== null
               ? `${stats.trend > 0 ? '+' : ''}${stats.trend}h compared to the previous 7 days`
               : 'Gathering more data'}
@@ -129,16 +129,16 @@ export default function SleepStats({ entries }: SleepStatsProps) {
         </div>
       </div>
 
-      <div className="sm:col-span-2 bg-white rounded-2xl p-4 sm:p-6 border border-stone-200 shadow-sm">
+      <div className="sm:col-span-2 bg-white dark:bg-stone-900 rounded-2xl p-4 sm:p-6 border border-stone-200 dark:border-stone-800 shadow-sm">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4">
-          <span className="text-sm font-medium text-stone-500">Sleep Duration Range</span>
-          <span className="text-sm text-stone-600 font-medium break-words">
+          <span className="text-sm font-medium text-stone-500 dark:text-stone-400">Sleep Duration Range</span>
+          <span className="text-sm text-stone-600 dark:text-stone-300 font-medium break-words">
             {formatDuration(stats.minDuration)} to {formatDuration(stats.maxDuration)}
           </span>
         </div>
-        <div className="h-2.5 bg-stone-100 rounded-full overflow-hidden relative">
+        <div className="h-2.5 bg-stone-100 dark:bg-stone-800 rounded-full overflow-hidden relative">
           <div
-            className="absolute h-full rounded-full bg-stone-400"
+            className="absolute h-full rounded-full bg-stone-400 dark:bg-stone-500"
             style={{
               left: `${(stats.minDuration / 600) * 100}%`,
               right: `${100 - (stats.maxDuration / 600) * 100}%`,
@@ -146,8 +146,8 @@ export default function SleepStats({ entries }: SleepStatsProps) {
           />
         </div>
         <div className="flex justify-between mt-2">
-          <span className="text-[11px] text-stone-400">0h</span>
-          <span className="text-[11px] text-stone-400">10h</span>
+          <span className="text-[11px] text-stone-400 dark:text-stone-500">0h</span>
+          <span className="text-[11px] text-stone-400 dark:text-stone-500">10h</span>
         </div>
       </div>
     </div>

@@ -35,8 +35,8 @@ function areaPath(points: Array<{ x: number; y: number }>, height: number) {
 
 function StatCard({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="bg-white rounded-2xl p-4 sm:p-6 border border-stone-200 shadow-sm">
-      <h3 className="text-base font-serif font-medium text-stone-800 mb-4 sm:mb-6">{title}</h3>
+    <div className="bg-white dark:bg-stone-900 rounded-2xl p-4 sm:p-6 border border-stone-200 dark:border-stone-800 shadow-sm">
+      <h3 className="text-base font-serif font-medium text-stone-800 dark:text-stone-100 mb-4 sm:mb-6">{title}</h3>
       {children}
     </div>
   );
@@ -136,9 +136,9 @@ export default function SleepChart({ entries }: SleepChartProps) {
 
   if (chartData.length === 0) {
     return (
-      <div className="text-center py-12 bg-white rounded-2xl border border-stone-200">
-        <p className="text-stone-500 text-sm">Not enough journal entries to create visualizations yet.</p>
-        <p className="text-xs text-stone-400 mt-1">Add a sleep record to begin seeing your trends.</p>
+      <div className="text-center py-12 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800">
+        <p className="text-stone-500 dark:text-stone-400 text-sm">Not enough journal entries to create visualizations yet.</p>
+        <p className="text-xs text-stone-400 dark:text-stone-500 mt-1">Add a sleep record to begin seeing your trends.</p>
       </div>
     );
   }
@@ -196,12 +196,12 @@ export default function SleepChart({ entries }: SleepChartProps) {
             return (
               <div key={item.name}>
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-sm text-stone-600">{item.name}</span>
-                  <span className="text-sm font-medium text-stone-800">{item.count}</span>
+                  <span className="text-sm text-stone-600 dark:text-stone-400">{item.name}</span>
+                  <span className="text-sm font-medium text-stone-800 dark:text-stone-100">{item.count}</span>
                 </div>
-                <div className="h-3 rounded-full bg-stone-100 overflow-hidden">
+                <div className="h-3 rounded-full bg-stone-100 dark:bg-stone-800 overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-stone-400 transition-all"
+                    className="h-full rounded-full bg-stone-400 dark:bg-stone-500 transition-all"
                     style={{ width: `${percent}%` }}
                   />
                 </div>
@@ -217,33 +217,33 @@ export default function SleepChart({ entries }: SleepChartProps) {
             {radarData.map((entry) => (
               <div
                 key={entry.day}
-                className="rounded-2xl border border-stone-200 bg-stone-50/70 px-4 py-4"
+                className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50/70 dark:bg-stone-800/70 px-4 py-4"
               >
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-medium text-stone-700">{entry.day}</span>
-                  <span className="text-xs uppercase tracking-[0.18em] text-stone-400">Daily snapshot</span>
+                  <span className="text-sm font-medium text-stone-700 dark:text-stone-200">{entry.day}</span>
+                  <span className="text-xs uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500">Daily snapshot</span>
                 </div>
                 <div className="space-y-3">
                   <div>
-                    <div className="flex items-center justify-between text-xs text-stone-500 mb-1">
+                    <div className="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 mb-1">
                       <span>Hours</span>
                       <span>{entry.hours}h</span>
                     </div>
-                    <div className="h-2.5 rounded-full bg-stone-200 overflow-hidden">
+                    <div className="h-2.5 rounded-full bg-stone-200 dark:bg-stone-700 overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-stone-500"
+                        className="h-full rounded-full bg-stone-500 dark:bg-stone-400"
                         style={{ width: `${Math.min((entry.hours / 12) * 100, 100)}%` }}
                       />
                     </div>
                   </div>
                   <div>
-                    <div className="flex items-center justify-between text-xs text-stone-500 mb-1">
+                    <div className="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 mb-1">
                       <span>Quality</span>
                       <span>{entry.quality.toFixed(1)}/5</span>
                     </div>
-                    <div className="h-2.5 rounded-full bg-stone-200 overflow-hidden">
+                    <div className="h-2.5 rounded-full bg-stone-200 dark:bg-stone-700 overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-amber-600/80"
+                        className="h-full rounded-full bg-amber-600/80 dark:bg-amber-500/80"
                         style={{ width: `${Math.min((entry.quality / 5) * 100, 100)}%` }}
                       />
                     </div>

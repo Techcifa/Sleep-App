@@ -53,10 +53,10 @@ export default function SleepHistory({ entries, onEdit, onDelete }: SleepHistory
 
   if (entries.length === 0) {
     return (
-      <div className="text-center py-20 bg-white rounded-2xl border border-stone-200">
-        <Moon className="w-12 h-12 text-stone-300 mx-auto mb-4 stroke-[1.5]" />
-        <h3 className="text-lg font-serif font-medium text-stone-800 mb-1">No resting records yet</h3>
-        <p className="text-sm text-stone-400">Your journal awaits its first sleep entry.</p>
+      <div className="text-center py-20 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800">
+        <Moon className="w-12 h-12 text-stone-300 dark:text-stone-700 mx-auto mb-4 stroke-[1.5]" />
+        <h3 className="text-lg font-serif font-medium text-stone-800 dark:text-stone-100 mb-1">No resting records yet</h3>
+        <p className="text-sm text-stone-400 dark:text-stone-500">Your journal awaits its first sleep entry.</p>
       </div>
     );
   }
@@ -66,24 +66,24 @@ export default function SleepHistory({ entries, onEdit, onDelete }: SleepHistory
       {entries.map((entry) => (
         <div
           key={entry.id}
-          className="bg-white rounded-2xl border border-stone-200 p-4 sm:p-6 shadow-sm transition-all"
+          className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 p-4 sm:p-6 shadow-sm transition-all"
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-4">
             <div className="min-w-0">
-              <div className="text-sm font-medium text-stone-500 tracking-wide uppercase text-xs">
+              <div className="text-sm font-medium text-stone-500 dark:text-stone-400 tracking-wide uppercase text-xs">
                 {formatDate(parseDate(entry.date), 'EEEE, MMMM d')}
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2.5 mt-2">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <Moon className="w-4 h-4 text-stone-400 stroke-[1.5]" />
-                  <span className="text-sm font-medium text-stone-800">
+                  <Moon className="w-4 h-4 text-stone-400 dark:text-stone-500 stroke-[1.5]" />
+                  <span className="text-sm font-medium text-stone-800 dark:text-stone-100">
                     {formatClockTime(entry.bedTime)}
                   </span>
                 </div>
-                <div className="hidden sm:block text-stone-400 text-xs">to</div>
+                <div className="hidden sm:block text-stone-400 dark:text-stone-500 text-xs">to</div>
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <Sun className="w-4 h-4 text-stone-400 stroke-[1.5]" />
-                  <span className="text-sm font-medium text-stone-800">
+                  <Sun className="w-4 h-4 text-stone-400 dark:text-stone-500 stroke-[1.5]" />
+                  <span className="text-sm font-medium text-stone-800 dark:text-stone-100">
                     {formatClockTime(entry.wakeTime)}
                   </span>
                 </div>
@@ -92,14 +92,14 @@ export default function SleepHistory({ entries, onEdit, onDelete }: SleepHistory
             <div className="flex items-center gap-1.5 self-end sm:self-auto">
               <button
                 onClick={() => onEdit(entry)}
-                className="p-2 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-50 transition-colors"
+                className="p-2 rounded-lg text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
                 title="Edit entry"
               >
                 <Edit2 className="w-4 h-4 stroke-[1.5]" />
               </button>
               <button
                 onClick={() => handleDelete(entry.id)}
-                className="p-2 rounded-lg text-stone-400 hover:text-rose-600 hover:bg-stone-50 transition-colors"
+                className="p-2 rounded-lg text-stone-400 dark:text-stone-500 hover:text-rose-600 dark:hover:text-rose-500 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
                 title="Delete entry"
               >
                 <Trash2 className="w-4 h-4 stroke-[1.5]" />
@@ -111,12 +111,12 @@ export default function SleepHistory({ entries, onEdit, onDelete }: SleepHistory
             <div className="flex items-center gap-0.5">{getQualityStars(entry.quality)}</div>
             <div className="flex-1">
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs text-stone-400">Time asleep</span>
-                <span className="text-sm font-serif font-medium text-stone-800">
+                <span className="text-xs text-stone-400 dark:text-stone-500">Time asleep</span>
+                <span className="text-sm font-serif font-medium text-stone-800 dark:text-stone-100">
                   {formatDuration(entry.duration)}
                 </span>
               </div>
-              <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-stone-100 dark:bg-stone-800 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${getDurationBarColor(entry.duration)}`}
                   style={{ width: `${getDurationPercent(entry.duration)}%` }}
@@ -126,8 +126,8 @@ export default function SleepHistory({ entries, onEdit, onDelete }: SleepHistory
           </div>
 
           {entry.notes && (
-            <div className="mt-4 pt-4 border-t border-stone-100">
-              <p className="text-sm text-stone-500 italic leading-relaxed">"{entry.notes}"</p>
+            <div className="mt-4 pt-4 border-t border-stone-100 dark:border-stone-800">
+              <p className="text-sm text-stone-500 dark:text-stone-400 italic leading-relaxed">"{entry.notes}"</p>
             </div>
           )}
         </div>

@@ -210,7 +210,7 @@ export default function AIInsights({ entries }: AIInsightsProps) {
       <button
         onClick={analyzeSleep}
         disabled={loading || entries.length === 0 || serverReady !== true}
-        className="w-full py-3.5 rounded-2xl bg-stone-800 text-white text-sm font-medium hover:bg-stone-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2.5 shadow-sm"
+        className="w-full py-3.5 rounded-2xl bg-stone-800 dark:bg-stone-200 text-white dark:text-stone-900 text-sm font-medium hover:bg-stone-700 dark:hover:bg-stone-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2.5 shadow-sm"
       >
         {loading ? (
           <>
@@ -226,28 +226,28 @@ export default function AIInsights({ entries }: AIInsightsProps) {
       </button>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+        <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0" />
           <div>
-            <p className="text-sm text-red-800 font-medium">Something went wrong</p>
-            <p className="text-sm text-red-700 mt-1">{error}</p>
+            <p className="text-sm text-red-800 dark:text-red-200 font-medium">Something went wrong</p>
+            <p className="text-sm text-red-700 dark:text-red-300 mt-1">{error}</p>
           </div>
         </div>
       )}
 
       {insights && (
-        <div className="bg-white rounded-2xl border border-stone-200 p-4 sm:p-6 shadow-sm">
+        <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 p-4 sm:p-6 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-amber-700" />
+              <div className="w-9 h-9 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-lg flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-amber-700 dark:text-amber-500" />
               </div>
-              <h3 className="text-base font-serif font-medium text-stone-800">Your Sleep Analysis</h3>
+              <h3 className="text-base font-serif font-medium text-stone-800 dark:text-stone-100">Your Sleep Analysis</h3>
             </div>
             <button
               onClick={analyzeSleep}
               disabled={loading}
-              className="flex items-center gap-1.5 text-xs text-stone-500 hover:text-stone-800 transition-colors self-start sm:self-auto"
+              className="flex items-center gap-1.5 text-xs text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-100 transition-colors self-start sm:self-auto"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               Refresh
@@ -260,7 +260,7 @@ export default function AIInsights({ entries }: AIInsightsProps) {
                 return (
                   <h2
                     key={index}
-                    className="text-base font-serif font-medium text-stone-800 mt-6 mb-2 first:mt-0"
+                    className="text-base font-serif font-medium text-stone-800 dark:text-stone-100 mt-6 mb-2 first:mt-0"
                   >
                     {line.replace('## ', '')}
                   </h2>
@@ -269,7 +269,7 @@ export default function AIInsights({ entries }: AIInsightsProps) {
 
               if (line.startsWith('### ')) {
                 return (
-                  <h3 key={index} className="text-sm font-medium text-stone-700 mt-4 mb-1.5">
+                  <h3 key={index} className="text-sm font-medium text-stone-700 dark:text-stone-200 mt-4 mb-1.5">
                     {line.replace('### ', '')}
                   </h3>
                 );
@@ -277,7 +277,7 @@ export default function AIInsights({ entries }: AIInsightsProps) {
 
               if (line.startsWith('**') && line.endsWith('**')) {
                 return (
-                  <p key={index} className="text-sm font-medium text-stone-800 mt-3 mb-1">
+                  <p key={index} className="text-sm font-medium text-stone-800 dark:text-stone-100 mt-3 mb-1">
                     {line.replace(/\*\*/g, '')}
                   </p>
                 );
@@ -289,10 +289,10 @@ export default function AIInsights({ entries }: AIInsightsProps) {
 
               const parts = line.split(/(\*\*[^*]+\*\*)/);
               return (
-                <p key={index} className="text-sm text-stone-600 leading-relaxed mb-1.5">
+                <p key={index} className="text-sm text-stone-600 dark:text-stone-400 leading-relaxed mb-1.5">
                   {parts.map((part, partIndex) =>
                     part.startsWith('**') && part.endsWith('**') ? (
-                      <span key={partIndex} className="font-medium text-stone-800">
+                      <span key={partIndex} className="font-medium text-stone-800 dark:text-stone-100">
                         {part.replace(/\*\*/g, '')}
                       </span>
                     ) : (
@@ -304,8 +304,8 @@ export default function AIInsights({ entries }: AIInsightsProps) {
             })}
           </div>
 
-          <div className="mt-6 pt-4 border-t border-stone-100">
-            <p className="text-xs text-stone-400 leading-relaxed">
+          <div className="mt-6 pt-4 border-t border-stone-100 dark:border-stone-800">
+            <p className="text-xs text-stone-400 dark:text-stone-500 leading-relaxed">
               Analysis generated by DeepSeek through your local server proxy. This is for
               informational purposes only and not medical advice.
             </p>
@@ -314,7 +314,7 @@ export default function AIInsights({ entries }: AIInsightsProps) {
       )}
 
       {entries.length === 0 && (
-        <div className="text-center py-12 text-stone-400">
+        <div className="text-center py-12 text-stone-400 dark:text-stone-500">
           <Sparkles className="w-8 h-8 mx-auto mb-3 opacity-40" />
           <p className="text-sm">Log some sleep entries to unlock AI analysis</p>
         </div>
