@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #f5f4f0;
+  --paper-strong: #ece8df;
+  --ink: #292524;
+  --muted: #78716c;
+  --line: rgba(87, 83, 78, 0.12);
+}
+
+html {
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.75), transparent 35%),
+    linear-gradient(180deg, #f8f5ef 0%, #f3efe7 100%);
+  color: var(--ink);
+}
+
+body {
+  min-height: 100vh;
+  background: transparent;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family:
+    "Spectral",
+    "Iowan Old Style",
+    "Palatino Linotype",
+    "Book Antiqua",
+    Georgia,
+    serif;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::selection {
+  background: rgba(120, 113, 108, 0.18);
+}
+
+input,
+select,
+textarea,
+button {
+  accent-color: #44403c;
+}
