@@ -205,25 +205,7 @@ export default function AIInsights({ entries }: AIInsightsProps) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-2xl border border-stone-200 p-4 sm:p-6 shadow-sm">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-9 h-9 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-center">
-            <Server className="w-4 h-4 text-amber-700" />
-          </div>
-          <div>
-            <h3 className="text-base font-serif font-medium text-stone-800">AI Proxy Status</h3>
-            <p className="text-xs text-stone-500">Server-side DeepSeek access keeps your provider key out of the browser.</p>
-          </div>
-        </div>
 
-        <div className="text-sm text-stone-600 leading-relaxed">
-          {serverReady === null && 'Checking whether the local AI proxy is configured...'}
-          {serverReady === false &&
-            'The backend proxy is not configured yet. Add DEEPSEEK_API_KEY to your server environment and restart the server.'}
-          {serverReady === true &&
-            'The backend proxy is configured and ready. Your AI analysis requests will go through the server.'}
-        </div>
-      </div>
 
       <button
         onClick={analyzeSleep}
