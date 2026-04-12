@@ -3,6 +3,7 @@ import { Calendar, Moon, Sun, Star, FileText, Plus, Check } from 'lucide-react';
 import { SleepEntry } from '../types';
 import { addEntry, updateEntry } from '../store';
 import { addDays, formatDate, isAfter, parseTime } from '../utils/date';
+import { Loader2 } from 'lucide-react';
 
 interface SleepFormProps {
   onEntrySaved: (entry: SleepEntry) => void;
@@ -34,6 +35,7 @@ export default function SleepForm({ onEntrySaved, initialEntry, isFromTimer }: S
   const [calculatedDuration, setCalculatedDuration] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
   const [bedDate, setBedDate] = useState<'same' | 'prev'>('prev');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!initialEntry) {
@@ -67,11 +69,11 @@ export default function SleepForm({ onEntrySaved, initialEntry, isFromTimer }: S
   const durationHours = Math.floor(calculatedDuration / 60);
   const durationMinutes = calculatedDuration % 60;
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (calculatedDuration <= 0) {
-      return;
-    }
+    if (calculatedDuration <= 0) return;
+
+    setIsSubmitting(true);
 
     const entry: SleepEntry = {
       id: (initialEntry?.id && !isFromTimer) ? initialEntry.id : (Date.now().toString(36) + Math.random().toString(36).substring(2, 9)),
@@ -85,22 +87,29 @@ export default function SleepForm({ onEntrySaved, initialEntry, isFromTimer }: S
       createdAt: (initialEntry?.createdAt && !isFromTimer) ? initialEntry.createdAt : Date.now(),
     };
 
-    if (initialEntry && !isFromTimer) {
-      updateEntry(entry);
-    } else {
-      addEntry(entry);
-    }
+    try {
+      if (initialEntry && !isFromTimer) {
+        await updateEntry(entry);
+      } else {
+        await addEntry(entry);
+      }
 
-    onEntrySaved(entry);
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
+      onEntrySaved(entry);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
 
-    if (!initialEntry || isFromTimer) {
-      setBedTime('23:00');
-      setWakeTime('07:00');
-      setQuality(3);
-      setNotes('');
-      setBedDate('prev');
+      if (!initialEntry || isFromTimer) {
+        setBedTime('23:00');
+        setWakeTime('07:00');
+        setQuality(3);
+        setNotes('');
+        setBedDate('prev');
+      }
+    } catch (err) {
+      console.error(err);
+      // Optional: add a user-visible error state here
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -233,11 +242,11 @@ export default function SleepForm({ onEntrySaved, initialEntry, isFromTimer }: S
 
         <button
           type="submit"
-          disabled={calculatedDuration <= 0}
+          disabled={calculatedDuration <= 0 || isSubmitting}
           className="w-full bg-stone-900 dark:bg-white hover:bg-stone-800 dark:hover:bg-stone-200 disabled:opacity-40 disabled:cursor-not-allowed text-white dark:text-stone-900 font-medium py-4 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-sm"
         >
-          <Plus className="w-5 h-5 stroke-[1.5]" />
-          {initialEntry && !isFromTimer ? 'Save Changes' : 'Log Entry'}
+          {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5 stroke-[1.5]" />}
+          {initialEntry && !isFromTimer ? (isSubmitting ? 'Saving...' : 'Save Changes') : (isSubmitting ? 'Logging...' : 'Log Entry')}
         </button>
       </form>
 

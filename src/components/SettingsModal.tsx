@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react';
-import { X, Download, Upload, Trash2, CheckCircle2 } from 'lucide-react';
+import { X, Download, Upload, Trash2, CheckCircle2, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SleepEntry } from '../types';
-import { getEntries, saveEntries } from '../store';
+import { fetchEntries, addEntry, clearEntries } from '../store';
+import { supabase } from '../lib/supabase';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -14,9 +15,9 @@ export default function SettingsModal({ isOpen, onClose, onDataChanged }: Settin
   const [statusMsg, setStatusMsg] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleExport = () => {
+  const handleExport = async () => {
     try {
-      const entries = getEntries();
+      const entries = await fetchEntries();
       const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -38,7 +39,7 @@ export default function SettingsModal({ isOpen, onClose, onDataChanged }: Settin
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       try {
         const content = event.target?.result as string;
         const parsed = JSON.parse(content) as SleepEntry[];
@@ -47,7 +48,9 @@ export default function SettingsModal({ isOpen, onClose, onDataChanged }: Settin
           throw new Error('Invalid format');
         }
 
-        saveEntries(parsed);
+        // Upload in parallel
+        await Promise.all(parsed.map((entry) => addEntry(entry)));
+
         showStatus('Data imported successfully!');
         onDataChanged();
         
@@ -55,18 +58,27 @@ export default function SettingsModal({ isOpen, onClose, onDataChanged }: Settin
           fileInputRef.current.value = '';
         }
       } catch (err) {
-        showStatus('Invalid file format. Import failed.');
+        showStatus('Invalid file format or network issue. Import failed.');
       }
     };
     reader.readAsText(file);
   };
   
-  const handleClear = () => {
-    if (confirm('Are you absolutely sure? This will delete all your sleep data irreversibly.')) {
-      saveEntries([]);
-      showStatus('All data cleared.');
-      onDataChanged();
+  const handleClear = async () => {
+    if (confirm('Are you absolutely sure? This will delete all your sleep data irreversibly from the cloud.')) {
+      try {
+        await clearEntries();
+        showStatus('All data cleared.');
+        onDataChanged();
+      } catch (err) {
+        showStatus('Failed to clear data.');
+      }
     }
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    onClose();
   };
 
   const showStatus = (msg: string) => {
@@ -137,10 +149,24 @@ export default function SettingsModal({ isOpen, onClose, onDataChanged }: Settin
                 />
               </div>
 
+              <div className="p-4 sm:p-5 rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/50 flex flex-col gap-3">
+                <div>
+                  <h3 className="text-sm font-medium text-stone-800 dark:text-stone-100 mb-1">Account settings</h3>
+                  <p className="text-xs text-stone-500 dark:text-stone-400">Sign out of your active tracking session.</p>
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  className="flex flex-1 items-center justify-center gap-2 py-2.5 px-4 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-200 text-sm font-medium rounded-xl hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </button>
+              </div>
+
               <div className="p-4 sm:p-5 rounded-2xl border border-rose-100 dark:border-rose-900/30 bg-rose-50/50 dark:bg-rose-950/20 flex flex-col gap-3">
                 <div>
                   <h3 className="text-sm font-medium text-rose-800 dark:text-rose-400 mb-1">Danger Zone</h3>
-                  <p className="text-xs text-rose-600/70 dark:text-rose-500/70">Permanently delete all your tracking data.</p>
+                  <p className="text-xs text-rose-600/70 dark:text-rose-500/70">Permanently delete all tracking data from the cloud.</p>
                 </div>
                 <button
                   onClick={handleClear}

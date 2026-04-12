@@ -12,13 +12,16 @@ import {
   ChevronDown,
   Settings,
 } from 'lucide-react';
+import { Session } from '@supabase/supabase-js';
+import { supabase } from './lib/supabase';
 import { SleepEntry, ViewTab } from './types';
-import { getEntries } from './store';
+import { fetchEntries, deleteEntry } from './store';
 import SleepForm from './components/SleepForm';
 import SleepHistory from './components/SleepHistory';
 import SleepStats from './components/SleepStats';
 import SleepTimerWidget from './components/SleepTimerWidget';
 import SettingsModal from './components/SettingsModal';
+import AuthScreen from './components/AuthScreen';
 
 const SleepChart = lazy(() => import('./components/SleepChart'));
 const AIInsights = lazy(() => import('./components/AIInsights'));
@@ -41,6 +44,8 @@ function PanelSkeleton({ message }: { message: string }) {
 }
 
 function App() {
+  const [session, setSession] = useState<Session | null>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [activeTab, setActiveTab] = useState<ViewTab>('dashboard');
   const [entries, setEntries] = useState<SleepEntry[]>([]);
   const [editingEntry, setEditingEntry] = useState<SleepEntry | null>(null);
@@ -55,8 +60,30 @@ function App() {
   });
 
   useEffect(() => {
-    setEntries(getEntries());
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setIsInitializing(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  const refreshEntries = useCallback(async () => {
+    if (session) {
+      const data = await fetchEntries();
+      setEntries(data);
+    }
+  }, [session]);
+
+  useEffect(() => {
+    refreshEntries();
+  }, [refreshEntries]);
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -72,12 +99,8 @@ function App() {
     localStorage.setItem('theme', newTheme);
   };
 
-  const refreshEntries = useCallback(() => {
-    setEntries(getEntries());
-  }, []);
-
-  const handleEntrySaved = (_entry: SleepEntry) => {
-    refreshEntries();
+  const handleEntrySaved = async (_entry: SleepEntry) => {
+    await refreshEntries();
     if (editingEntry) {
       setEditingEntry(null);
       setActiveTab('history');
@@ -125,8 +148,13 @@ function App() {
     setActiveTab('log');
   };
 
-  const handleDelete = (_id: string) => {
-    refreshEntries();
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteEntry(id);
+      await refreshEntries();
+    } catch {
+      // ignore
+    }
   };
 
   const tabs: { id: ViewTab; label: string; icon: typeof Moon }[] = [
@@ -162,6 +190,18 @@ function App() {
       desc: 'Create a calming pre-sleep ritual like reading, stretching, or meditation.',
     },
   ];
+
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen bg-stone-50 dark:bg-stone-950 flex items-center justify-center">
+        <div className="animate-pulse w-12 h-12 bg-stone-200 dark:bg-stone-800 rounded-full" />
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <AuthScreen />;
+  }
 
   return (
     <div className="min-h-screen text-stone-800 dark:text-stone-100 antialiased selection:bg-stone-200 dark:selection:bg-stone-700">
