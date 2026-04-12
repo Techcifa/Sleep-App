@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Moon, Sun, Star, FileText, Plus, Check } from 'lucide-react';
+import { Calendar, Moon, Sun, Star, FileText, Plus, Check, Tag } from 'lucide-react';
 import { SleepEntry } from '../types';
 import { addEntry, updateEntry } from '../store';
 import { addDays, formatDate, isAfter, parseTime } from '../utils/date';
@@ -32,10 +32,14 @@ export default function SleepForm({ onEntrySaved, initialEntry, isFromTimer }: S
   const [wakeTime, setWakeTime] = useState('07:00');
   const [quality, setQuality] = useState(3);
   const [notes, setNotes] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
+  const [customTagInput, setCustomTagInput] = useState('');
   const [calculatedDuration, setCalculatedDuration] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
   const [bedDate, setBedDate] = useState<'same' | 'prev'>('prev');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const commonTags = ['☕ Caffeine', '🍷 Alcohol', '🏃‍♂️ Exercise', '📱 Screens', '🧘 Meditation', '🍔 Heavy Meal'];
 
   useEffect(() => {
     if (!initialEntry) {
@@ -48,7 +52,25 @@ export default function SleepForm({ onEntrySaved, initialEntry, isFromTimer }: S
     setWakeTime(initialEntry.wakeTime);
     setQuality(initialEntry.quality);
     setNotes(initialEntry.notes);
+    setTags(initialEntry.tags || []);
   }, [initialEntry]);
+
+  const toggleTag = (tag: string) => {
+    setTags(prev => 
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const handleAddCustomTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && customTagInput.trim()) {
+      e.preventDefault();
+      const newTag = customTagInput.trim();
+      if (!tags.includes(newTag)) {
+        setTags([...tags, newTag]);
+      }
+      setCustomTagInput('');
+    }
+  };
 
   useEffect(() => {
     try {
@@ -84,6 +106,7 @@ export default function SleepForm({ onEntrySaved, initialEntry, isFromTimer }: S
       duration: calculatedDuration,
       quality,
       notes,
+      tags,
       createdAt: (initialEntry?.createdAt && !isFromTimer) ? initialEntry.createdAt : Date.now(),
     };
 
@@ -103,6 +126,7 @@ export default function SleepForm({ onEntrySaved, initialEntry, isFromTimer }: S
         setWakeTime('07:00');
         setQuality(3);
         setNotes('');
+        setTags([]);
         setBedDate('prev');
       }
     } catch (err) {
@@ -224,6 +248,41 @@ export default function SleepForm({ onEntrySaved, initialEntry, isFromTimer }: S
               </button>
             ))}
           </div>
+        </div>
+
+        <div className="bg-white dark:bg-stone-900 rounded-2xl p-4 sm:p-6 border border-stone-200 dark:border-stone-800 shadow-sm">
+          <label className="flex items-center gap-2 text-sm font-medium text-stone-600 dark:text-stone-400 mb-3">
+            <Tag className="w-4 h-4 stroke-[1.5]" />
+            Habit Tags
+            <span className="text-[10px] text-stone-400 font-normal ml-1">(Tap affects on your sleep)</span>
+          </label>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {commonTags.concat(tags.filter(t => !commonTags.includes(t))).map(tag => {
+              const isSelected = tags.includes(tag);
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => toggleTag(tag)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+                    isSelected 
+                      ? 'bg-stone-800 border-stone-800 text-white dark:bg-stone-200 dark:border-stone-200 dark:text-stone-900 shadow-sm' 
+                      : 'bg-stone-50 border-stone-200 text-stone-600 dark:bg-stone-800/50 dark:border-stone-700 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
+                  }`}
+                >
+                  {tag}
+                </button>
+              );
+            })}
+          </div>
+          <input
+            type="text"
+            value={customTagInput}
+            onChange={(e) => setCustomTagInput(e.target.value)}
+            onKeyDown={handleAddCustomTag}
+            placeholder="Type custom tag and press Enter..."
+            className="w-full bg-stone-50 dark:bg-stone-800 border fill-transparent border-stone-200 dark:border-stone-700 rounded-xl px-4 py-2.5 text-sm text-stone-800 dark:text-stone-100 placeholder-stone-400 focus:ring-2 focus:ring-stone-400 focus:border-transparent outline-none transition-all"
+          />
         </div>
 
         <div className="bg-white dark:bg-stone-900 rounded-2xl p-4 sm:p-6 border border-stone-200 dark:border-stone-800 shadow-sm">

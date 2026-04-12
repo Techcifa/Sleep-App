@@ -9,9 +9,31 @@ interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onDataChanged: () => void;
+  targetSleep: number;
+  onTargetSleepChange: (val: number) => void;
+  notificationsEnabled: boolean;
+  onNotificationsToggle: (enabled: boolean) => void;
+  targetBedtime: string;
+  onTargetBedtimeChange: (val: string) => void;
+  windDownMinutes: number;
+  onWindDownMinutesChange: (val: number) => void;
+  onCalendarExport: () => void;
 }
 
-export default function SettingsModal({ isOpen, onClose, onDataChanged }: SettingsModalProps) {
+export default function SettingsModal({ 
+  isOpen, 
+  onClose, 
+  onDataChanged, 
+  targetSleep, 
+  onTargetSleepChange,
+  notificationsEnabled,
+  onNotificationsToggle,
+  targetBedtime,
+  onTargetBedtimeChange,
+  windDownMinutes,
+  onWindDownMinutesChange,
+  onCalendarExport
+}: SettingsModalProps) {
   const [statusMsg, setStatusMsg] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -114,6 +136,85 @@ export default function SettingsModal({ isOpen, onClose, onDataChanged }: Settin
             </div>
 
             <div className="space-y-4">
+              <div className="p-4 sm:p-5 rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/50 flex flex-col gap-3">
+                <div>
+                  <h3 className="text-sm font-medium text-stone-800 dark:text-stone-100 mb-1">Target Sleep Duration</h3>
+                  <p className="text-xs text-stone-500 dark:text-stone-400">Used to calculate your rolling sleep debt.</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="number"
+                    min="4"
+                    max="14"
+                    step="0.5"
+                    value={targetSleep}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value);
+                      if (!isNaN(val)) onTargetSleepChange(val);
+                    }}
+                    className="w-24 px-3 py-2 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl text-stone-800 dark:text-stone-100 focus:ring-2 focus:ring-stone-400 dark:focus:ring-stone-500 outline-none text-center font-medium shadow-sm transition-all"
+                  />
+                  <span className="text-sm text-stone-500 dark:text-stone-400 font-medium">hours</span>
+                </div>
+              </div>
+
+              <div className="p-4 sm:p-5 rounded-2xl border border-indigo-100 dark:border-indigo-900/30 bg-indigo-50/50 dark:bg-indigo-900/10 flex flex-col gap-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium text-indigo-900 dark:text-indigo-100 mb-1">Smart Wind-Down</h3>
+                    <p className="text-xs text-indigo-700/70 dark:text-indigo-300/70">Receive a browser notification before bed.</p>
+                  </div>
+                  <button
+                    onClick={() => onNotificationsToggle(!notificationsEnabled)}
+                    className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 ${notificationsEnabled ? 'bg-indigo-500' : 'bg-stone-300 dark:bg-stone-700'}`}
+                    role="switch"
+                    aria-checked={notificationsEnabled}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`pointer-events-none absolute left-0.5 inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${notificationsEnabled ? 'translate-x-4' : 'translate-x-0'}`}
+                    />
+                  </button>
+                </div>
+
+                {notificationsEnabled && (
+                  <motion.div 
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    className="flex flex-col gap-3 pt-3 border-t border-indigo-100 dark:border-indigo-800/50"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-indigo-800 dark:text-indigo-300">Target Bedtime</span>
+                      <input
+                        type="time"
+                        value={targetBedtime}
+                        onChange={(e) => onTargetBedtimeChange(e.target.value)}
+                        className="px-2 py-1.5 bg-white dark:bg-stone-900 border border-indigo-200 dark:border-indigo-700/50 rounded-lg text-indigo-900 dark:text-indigo-100 text-xs font-medium outline-none"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-indigo-800 dark:text-indigo-300">Alert Me (Minutes Before)</span>
+                      <input
+                        type="number"
+                        min="5"
+                        max="120"
+                        step="5"
+                        value={windDownMinutes}
+                        onChange={(e) => onWindDownMinutesChange(Number(e.target.value))}
+                        className="w-16 px-2 py-1.5 bg-white dark:bg-stone-900 border border-indigo-200 dark:border-indigo-700/50 rounded-lg text-indigo-900 dark:text-indigo-100 text-xs text-center font-medium outline-none"
+                      />
+                    </div>
+                    
+                    <button
+                      onClick={onCalendarExport}
+                      className="mt-2 text-xs w-full py-2 bg-indigo-100 dark:bg-indigo-900/40 hover:bg-indigo-200 dark:hover:bg-indigo-800/60 text-indigo-700 dark:text-indigo-300 rounded-lg font-medium transition-colors"
+                    >
+                      Export to Mobile Calendar (.ics)
+                    </button>
+                  </motion.div>
+                )}
+              </div>
+
               <div className="p-4 sm:p-5 rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/50 flex flex-col gap-3">
                 <div>
                   <h3 className="text-sm font-medium text-stone-800 dark:text-stone-100 mb-1">Export Data</h3>

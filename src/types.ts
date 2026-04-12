@@ -7,7 +7,8 @@ export interface SleepEntry {
   duration: number; // in minutes
   quality: number; // 1-5
   notes: string;
+  tags?: string[];
   createdAt: number;
 }
 
-export type ViewTab = 'dashboard' | 'log' | 'history' | 'insights';
+export type ViewTab = 'dashboard' | 'log' | 'history' | 'insights' | 'community';

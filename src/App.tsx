@@ -11,6 +11,7 @@ import {
   Sparkles,
   ChevronDown,
   Settings,
+  Users,
 } from 'lucide-react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from './lib/supabase';
@@ -22,6 +23,12 @@ import SleepStats from './components/SleepStats';
 import SleepTimerWidget from './components/SleepTimerWidget';
 import SettingsModal from './components/SettingsModal';
 import AuthScreen from './components/AuthScreen';
+import GamificationWidget from './components/GamificationWidget';
+import HabitCorrelator from './components/HabitCorrelator';
+import CommunityLeaderboard from './components/CommunityLeaderboard';
+import { useNotifications } from './hooks/useNotifications';
+import { calculateLoggingStreak } from './utils/analytics';
+import { fetchProfile, syncProfile } from './store';
 
 const SleepChart = lazy(() => import('./components/SleepChart'));
 const AIInsights = lazy(() => import('./components/AIInsights'));
@@ -58,6 +65,25 @@ function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     return (localStorage.getItem('theme') as 'light' | 'dark') || 'light';
   });
+  const [targetSleep, setTargetSleep] = useState<number>(() => {
+    return parseFloat(localStorage.getItem('target_sleep_hours') || '8');
+  });
+  
+  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(() => {
+    return localStorage.getItem('notifications_enabled') === 'true';
+  });
+  const [targetBedtime, setTargetBedtime] = useState<string>(() => {
+    return localStorage.getItem('target_bedtime') || '22:30';
+  });
+  const [windDownMinutes, setWindDownMinutes] = useState<number>(() => {
+    return parseInt(localStorage.getItem('wind_down_minutes') || '45', 10);
+  });
+
+  const { permission, requestPermission, downloadCalendarEvent } = useNotifications({
+    enabled: notificationsEnabled,
+    targetBedtime,
+    windDownMinutes
+  });
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -78,6 +104,13 @@ function App() {
     if (session) {
       const data = await fetchEntries();
       setEntries(data);
+      
+      // Lazily sync the user's latest streak to their public profile if they opted in
+      fetchProfile().then(profile => {
+        if (profile?.username) {
+          syncProfile(profile.username, calculateLoggingStreak(data));
+        }
+      });
     }
   }, [session]);
 
@@ -162,6 +195,7 @@ function App() {
     { id: 'log', label: 'Log Sleep', icon: PlusCircle },
     { id: 'history', label: 'History', icon: History },
     { id: 'insights', label: 'Insights', icon: Lightbulb },
+    { id: 'community', label: 'Community', icon: Users },
   ];
 
   const sleepTips = [
@@ -272,7 +306,7 @@ function App() {
           </div>
         </section>
 
-        <nav className="fixed bottom-0 left-0 right-0 z-40 grid grid-cols-4 gap-1 bg-white/95 dark:bg-stone-900/95 border-t border-stone-200 dark:border-stone-800 p-2 sm:p-1.5 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] backdrop-blur-md sm:relative sm:bottom-auto sm:left-auto sm:right-auto sm:z-auto sm:mb-8 sm:border sm:rounded-2xl sm:shadow-sm sm:bg-white/85 dark:sm:bg-stone-900/85">
+        <nav className="fixed bottom-0 left-0 right-0 z-40 grid grid-cols-5 gap-1 bg-white/95 dark:bg-stone-900/95 border-t border-stone-200 dark:border-stone-800 p-2 sm:p-1.5 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] backdrop-blur-md sm:relative sm:bottom-auto sm:left-auto sm:right-auto sm:z-auto sm:mb-8 sm:border sm:rounded-2xl sm:shadow-sm sm:bg-white/85 dark:sm:bg-stone-900/85">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -306,12 +340,14 @@ function App() {
             >
               {activeTab === 'dashboard' && (
                 <div className="space-y-8">
+                  <GamificationWidget entries={entries} />
+                  
                   <SleepTimerWidget 
                     sleepStartTime={activeSleepStart} 
                     onStartSleep={handleStartSleep}
                     onWakeUp={handleWakeUp}
                   />
-                  <SleepStats entries={entries} />
+                  <SleepStats entries={entries} targetHours={targetSleep} />
                   <Suspense fallback={<PanelSkeleton message="Loading your sleep charts..." />}>
                     <SleepChart entries={entries} />
                   </Suspense>
@@ -342,8 +378,8 @@ function App() {
                       <AIInsights entries={entries} />
                     </Suspense>
                   </div>
-
-                  <SleepStats entries={entries} />
+                  
+                  <HabitCorrelator entries={entries} />
 
                   <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-sm">
                     <button
@@ -376,6 +412,10 @@ function App() {
                     <SleepChart entries={entries} />
                   </Suspense>
                 </div>
+              )}
+
+              {activeTab === 'community' && (
+                <CommunityLeaderboard entries={entries} />
               )}
             </motion.div>
           </AnimatePresence>
@@ -413,6 +453,31 @@ function App() {
         isOpen={isSettingsOpen} 
         onClose={() => setIsSettingsOpen(false)} 
         onDataChanged={refreshEntries} 
+        targetSleep={targetSleep}
+        onTargetSleepChange={(val) => {
+          setTargetSleep(val);
+          localStorage.setItem('target_sleep_hours', String(val));
+        }}
+        notificationsEnabled={notificationsEnabled}
+        onNotificationsToggle={async (enabled) => {
+          if (enabled && permission !== 'granted') {
+            const granted = await requestPermission();
+            if (!granted) return; // if denied, don't toggle on
+          }
+          setNotificationsEnabled(enabled);
+          localStorage.setItem('notifications_enabled', String(enabled));
+        }}
+        targetBedtime={targetBedtime}
+        onTargetBedtimeChange={(val) => {
+          setTargetBedtime(val);
+          localStorage.setItem('target_bedtime', val);
+        }}
+        windDownMinutes={windDownMinutes}
+        onWindDownMinutesChange={(val) => {
+          setWindDownMinutes(val);
+          localStorage.setItem('wind_down_minutes', String(val));
+        }}
+        onCalendarExport={downloadCalendarEvent}
       />
     </div>
   );

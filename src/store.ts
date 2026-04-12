@@ -2,6 +2,12 @@ import { SleepEntry } from './types';
 import { isAfter, parseDate } from './utils/date';
 import { supabase } from './lib/supabase';
 
+export interface UserProfile {
+  id: string;
+  username: string;
+  current_streak: number;
+}
+
 function inferBedDate(entry: SleepEntry): 'same' | 'prev' {
   if (entry.bedDate) {
     return entry.bedDate;
@@ -19,6 +25,7 @@ function normalizeEntry(entry: any): SleepEntry {
     duration: entry.duration,
     quality: entry.quality,
     notes: entry.notes || '',
+    tags: Array.isArray(entry.tags) ? entry.tags : [],
     createdAt: Number(entry.createdAt),
   };
 }
@@ -121,4 +128,45 @@ export async function clearEntries(): Promise<void> {
     console.error('Error clearing sleep entries:', error);
     throw error;
   }
+}
+
+export async function syncProfile(username: string, streak: number): Promise<void> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) return;
+
+  const { error } = await supabase
+    .from('profiles')
+    .upsert({ id: session.user.id, username, current_streak: streak });
+    
+  if (error) console.error('Error syncing profile:', error);
+}
+
+export async function fetchProfile(): Promise<UserProfile | null> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) return null;
+
+  const { data, error } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+  if (error || !data) return null;
+  return data as UserProfile;
+}
+
+export async function fetchGlobalLeaderboard(): Promise<UserProfile[]> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .order('current_streak', { ascending: false })
+    .limit(50);
+  if (error) return [];
+  return data as UserProfile[];
+}
+
+export async function fetchFriendsLeaderboard(usernames: string[]): Promise<UserProfile[]> {
+  if (usernames.length === 0) return [];
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .in('username', usernames)
+    .order('current_streak', { ascending: false });
+  if (error) return [];
+  return data as UserProfile[];
 }
