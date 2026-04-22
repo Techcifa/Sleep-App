@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { X, Download, Upload, Trash2, CheckCircle2, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SleepEntry } from '../types';
