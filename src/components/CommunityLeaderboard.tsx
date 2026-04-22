@@ -18,6 +18,7 @@ export default function CommunityLeaderboard({ entries }: CommunityLeaderboardPr
   const [username, setUsername] = useState<string>('');
   const [isUsernameSet, setIsUsernameSet] = useState<boolean>(true); // assume true until fetch completes
   const [usernameInput, setUsernameInput] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
   const [friendsList, setFriendsList] = useState<string[]>(() => {
     try {
@@ -59,12 +60,21 @@ export default function CommunityLeaderboard({ entries }: CommunityLeaderboardPr
   const handleSetUsername = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!usernameInput.trim()) return;
+    setErrorMsg('');
     
-    // Save to database
-    await syncProfile(usernameInput.trim(), currentStreak);
-    setUsername(usernameInput.trim());
-    setIsUsernameSet(true);
-    refreshBoards();
+    try {
+      // Save to database
+      await syncProfile(usernameInput.trim(), currentStreak);
+      setUsername(usernameInput.trim());
+      setIsUsernameSet(true);
+      refreshBoards();
+    } catch (err: any) {
+      if (err.code === '23505') {
+        setErrorMsg('This username is already taken. Please choose another.');
+      } else {
+        setErrorMsg('Failed to set username. Please try again.');
+      }
+    }
   };
 
   const handleAddFriend = async (e: React.FormEvent) => {
@@ -152,6 +162,9 @@ export default function CommunityLeaderboard({ entries }: CommunityLeaderboardPr
             placeholder="Choose a username..."
             className="w-full bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-stone-800 dark:text-stone-100 focus:ring-2 focus:ring-indigo-400 dark:focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-center"
           />
+          {errorMsg && (
+            <p className="text-sm text-red-500 text-center font-medium bg-red-50 dark:bg-red-500/10 py-1.5 rounded-lg border border-red-100 dark:border-red-500/20">{errorMsg}</p>
+          )}
           <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-xl transition-all shadow-md shadow-indigo-600/20">
             Join Leaderboard
           </button>

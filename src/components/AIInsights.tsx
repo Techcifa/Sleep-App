@@ -235,6 +235,16 @@ export default function AIInsights({ entries }: AIInsightsProps) {
         </div>
       )}
 
+      {serverReady === false && (
+        <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl p-4 flex items-start gap-3">
+          <Server className="w-5 h-5 text-amber-500 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="text-sm text-amber-800 dark:text-amber-200 font-medium">AI Provider Not Configured</p>
+            <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">The server is missing the DEEPSEEK_API_KEY environment variable. AI analysis is currently unavailable.</p>
+          </div>
+        </div>
+      )}
+
       {insights && (
         <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 p-4 sm:p-6 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">

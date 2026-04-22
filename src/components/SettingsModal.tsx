@@ -2,7 +2,8 @@ import { useState, useRef } from 'react';
 import { X, Download, Upload, Trash2, CheckCircle2, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SleepEntry } from '../types';
-import { fetchEntries, addEntry, clearEntries } from '../store';
+import { fetchEntries, addEntry, clearEntries, fetchProfile, syncProfile } from '../store';
+import { calculateLoggingStreak } from '../utils/analytics';
 import { supabase } from '../lib/supabase';
 
 interface SettingsModalProps {
@@ -36,6 +37,42 @@ export default function SettingsModal({
 }: SettingsModalProps) {
   const [statusMsg, setStatusMsg] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const [username, setUsername] = useState('');
+  const [usernameError, setUsernameError] = useState('');
+  const [isUpdatingUsername, setIsUpdatingUsername] = useState(false);
+
+  // Fetch username when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      fetchProfile().then(p => {
+        if (p?.username) setUsername(p.username);
+      });
+    } else {
+      setUsernameError('');
+    }
+  }, [isOpen]);
+
+  const handleUpdateUsername = async () => {
+    if (!username.trim()) return;
+    setIsUpdatingUsername(true);
+    setUsernameError('');
+    try {
+      const entries = await fetchEntries();
+      const streak = calculateLoggingStreak(entries);
+      await syncProfile(username.trim(), streak);
+      showStatus('Username updated successfully!');
+      onDataChanged(); // Might trigger a re-render in App
+    } catch (err: any) {
+      if (err.code === '23505') {
+        setUsernameError('Username already taken.');
+      } else {
+        setUsernameError('Failed to update username. Try again.');
+      }
+    } finally {
+      setIsUpdatingUsername(false);
+    }
+  };
 
   const handleExport = async () => {
     try {
@@ -120,10 +157,11 @@ export default function SettingsModal({
             className="fixed inset-0 z-50 bg-stone-900/40 dark:bg-black/60 backdrop-blur-sm"
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-stone-900 rounded-[1.75rem] border border-stone-200 dark:border-stone-800 shadow-2xl p-6 sm:p-8"
+            initial={{ opacity: 0, y: '100%' }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="fixed inset-x-0 bottom-0 z-50 w-full rounded-t-[2.5rem] bg-white dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] p-6 pb-12 sm:relative sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-[2rem] sm:max-w-md sm:p-8 sm:shadow-2xl overflow-y-auto max-h-[92dvh] sm:max-h-[85vh]"
           >
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-serif font-medium text-stone-900 dark:text-stone-100">Data & Settings</h2>
@@ -155,6 +193,33 @@ export default function SettingsModal({
                     className="w-24 px-3 py-2 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl text-stone-800 dark:text-stone-100 focus:ring-2 focus:ring-stone-400 dark:focus:ring-stone-500 outline-none text-center font-medium shadow-sm transition-all"
                   />
                   <span className="text-sm text-stone-500 dark:text-stone-400 font-medium">hours</span>
+                </div>
+              </div>
+
+              <div className="p-4 sm:p-5 rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/50 flex flex-col gap-3">
+                <div>
+                  <h3 className="text-sm font-medium text-stone-800 dark:text-stone-100 mb-1">Community Username</h3>
+                  <p className="text-xs text-stone-500 dark:text-stone-400">Change how you appear on the leaderboard.</p>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="text"
+                      maxLength={20}
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="Your username"
+                      className="flex-1 px-3 py-2 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl text-stone-800 dark:text-stone-100 focus:ring-2 focus:ring-stone-400 dark:focus:ring-stone-500 outline-none placeholder-stone-400 text-sm font-medium shadow-sm transition-all"
+                    />
+                    <button
+                      onClick={handleUpdateUsername}
+                      disabled={isUpdatingUsername || !username.trim()}
+                      className="px-4 py-2 bg-stone-800 dark:bg-stone-200 text-white dark:text-stone-900 text-sm font-medium rounded-xl hover:bg-stone-700 dark:hover:bg-stone-300 disabled:opacity-50 transition-colors"
+                    >
+                      {isUpdatingUsername ? 'Saving...' : 'Save'}
+                    </button>
+                  </div>
+                  {usernameError && <p className="text-xs text-red-500">{usernameError}</p>}
                 </div>
               </div>
 

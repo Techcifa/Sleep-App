@@ -238,34 +238,36 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen text-stone-800 dark:text-stone-100 antialiased selection:bg-stone-200 dark:selection:bg-stone-700">
-      <div className="max-w-3xl mx-auto px-3 sm:px-4 py-6 sm:py-8 md:py-14 pb-28 sm:pb-14">
-        <header className="mb-8 sm:mb-10 text-center sm:text-left flex flex-col sm:flex-row items-center gap-3 sm:gap-4 justify-between">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 bg-stone-800 dark:bg-stone-700 rounded-full flex items-center justify-center shadow-sm ring-4 sm:ring-8 ring-white/60 dark:ring-stone-800/60">
-              <Moon className="w-5 h-5 sm:w-6 sm:h-6 text-[#F5F4F0] fill-current" />
+    <div className="min-h-screen sm:min-h-[100dvh] text-stone-800 dark:text-stone-100 antialiased selection:bg-stone-200 dark:selection:bg-stone-700 overflow-x-hidden">
+      <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10 md:py-14 pb-32 sm:pb-16">
+        <header className="mb-8 sm:mb-12 flex flex-col sm:flex-row items-center sm:items-end justify-between gap-6 sm:gap-4">
+          <div className="flex items-center gap-4 w-full sm:w-auto">
+            <div className="flex-shrink-0 w-12 h-12 bg-stone-900 dark:bg-stone-800 rounded-full flex items-center justify-center shadow-lg ring-8 ring-stone-100 dark:ring-stone-900/50">
+              <Moon className="w-6 h-6 text-stone-50 fill-current" />
             </div>
             <div className="text-left">
               <h1 className="text-2xl sm:text-3xl font-serif tracking-tight font-medium text-stone-900 dark:text-stone-50">
                 Rest & Renewal
               </h1>
-              <p className="text-sm text-stone-500 dark:text-stone-400 mt-0.5">A mindful approach to sleep tracking</p>
+              <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-0.5 font-medium uppercase tracking-wide">A mindful sleep journal</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-end">
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className="p-2 sm:p-2.5 rounded-full bg-white/50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-700 transition-colors shadow-sm"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 p-3 sm:p-3 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-all shadow-sm active:scale-95"
               title="Settings"
             >
               <Settings className="w-5 h-5" />
+              <span className="text-xs font-semibold sm:hidden">Settings</span>
             </button>
             <button
               onClick={toggleTheme}
-              className="p-2 sm:p-2.5 rounded-full bg-white/50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-700 transition-colors shadow-sm"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 p-3 sm:p-3 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-all shadow-sm active:scale-95"
               title="Toggle Theme"
             >
               {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+              <span className="text-xs font-semibold sm:hidden">{theme === 'light' ? 'Dark' : 'Light'}</span>
             </button>
           </div>
         </header>
@@ -306,7 +308,7 @@ function App() {
           </div>
         </section>
 
-        <nav className="fixed bottom-0 left-0 right-0 z-40 grid grid-cols-5 gap-1 bg-white/95 dark:bg-stone-900/95 border-t border-stone-200 dark:border-stone-800 p-2 sm:p-1.5 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] backdrop-blur-md sm:relative sm:bottom-auto sm:left-auto sm:right-auto sm:z-auto sm:mb-8 sm:border sm:rounded-2xl sm:shadow-sm sm:bg-white/85 dark:sm:bg-stone-900/85">
+        <nav className="fixed bottom-0 left-0 right-0 z-40 grid grid-cols-5 gap-1 bg-white/95 dark:bg-stone-900/95 border-t border-stone-200 dark:border-stone-800 p-2 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:p-2 shadow-[0_-4px_20px_-1px_rgba(0,0,0,0.05)] backdrop-blur-md sm:relative sm:bottom-auto sm:left-auto sm:right-auto sm:z-auto sm:mb-12 sm:border sm:rounded-2xl sm:shadow-sm sm:bg-white/85 dark:sm:bg-stone-900/85">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -347,7 +349,11 @@ function App() {
                     onStartSleep={handleStartSleep}
                     onWakeUp={handleWakeUp}
                   />
-                  <SleepStats entries={entries} targetHours={targetSleep} />
+                  <SleepStats 
+                    entries={entries} 
+                    targetHours={targetSleep} 
+                    onEditTarget={() => setIsSettingsOpen(true)}
+                  />
                   <Suspense fallback={<PanelSkeleton message="Loading your sleep charts..." />}>
                     <SleepChart entries={entries} />
                   </Suspense>

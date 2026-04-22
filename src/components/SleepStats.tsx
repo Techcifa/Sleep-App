@@ -7,6 +7,7 @@ import { calculateSleepDebt, detectChronotype, calculateConsistency } from '../u
 interface SleepStatsProps {
   entries: SleepEntry[];
   targetHours: number;
+  onEditTarget?: () => void;
 }
 
 function formatDuration(minutes: number) {
@@ -24,7 +25,7 @@ function compareEntries(a: SleepEntry, b: SleepEntry) {
   return b.createdAt - a.createdAt;
 }
 
-export default function SleepStats({ entries, targetHours }: SleepStatsProps) {
+export default function SleepStats({ entries, targetHours, onEditTarget }: SleepStatsProps) {
   const stats = useMemo(() => {
     if (entries.length === 0) return null;
 
@@ -172,13 +173,24 @@ export default function SleepStats({ entries, targetHours }: SleepStatsProps) {
           <span className="text-sm font-medium text-stone-500 dark:text-stone-400">Sleep Debt (7 Days)</span>
         </div>
         <div>
-          <div className={`text-2xl sm:text-3xl font-serif font-medium ${stats.sleepDebt > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
-            {stats.sleepDebt > 0 ? `-${stats.sleepDebt.toFixed(1)}h` : `+${Math.abs(stats.sleepDebt).toFixed(1)}h`}
+          <div className="flex items-baseline gap-1.5 flex-wrap">
+            <div className={`text-2xl sm:text-3xl font-serif font-medium ${stats.sleepDebt > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+              {stats.sleepDebt > 0 ? `-${stats.sleepDebt.toFixed(1)}h` : `+${Math.abs(stats.sleepDebt).toFixed(1)}h`}
+            </div>
+            {onEditTarget && (
+              <button 
+                onClick={onEditTarget}
+                className="text-[10px] uppercase tracking-wider font-bold text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors"
+                title="Change Goal"
+              >
+                (Edit Goal)
+              </button>
+            )}
           </div>
           <p className="text-xs text-stone-400 dark:text-stone-500 mt-1">
             {stats.sleepDebt > 0 
               ? `You are behind on your ${targetHours}h per night goal.` 
-              : 'You are well-rested with a slight surplus!'}
+              : `You've exceeded your ${targetHours}h per night goal!`}
           </p>
         </div>
       </div>

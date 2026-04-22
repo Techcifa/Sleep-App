@@ -138,7 +138,10 @@ export async function syncProfile(username: string, streak: number): Promise<voi
     .from('profiles')
     .upsert({ id: session.user.id, username, current_streak: streak });
     
-  if (error) console.error('Error syncing profile:', error);
+  if (error) {
+    console.error('Error syncing profile:', error);
+    throw error;
+  }
 }
 
 export async function fetchProfile(): Promise<UserProfile | null> {

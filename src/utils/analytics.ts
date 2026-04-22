@@ -1,5 +1,5 @@
 import { SleepEntry } from '../types';
-import { isAfter, parseDate, subDays, parseTime } from './date';
+import { isAfter, parseDate, subDays, parseTime, formatDate } from './date';
 
 export function calculateSleepDebt(entries: SleepEntry[], targetHours: number, trailingDays: number = 7): number {
   if (!entries || entries.length === 0) return 0;
@@ -12,7 +12,8 @@ export function calculateSleepDebt(entries: SleepEntry[], targetHours: number, t
   if (recentEntries.length === 0) return 0;
   
   const targetMinutes = targetHours * 60;
-  const totalTarget = targetMinutes * recentEntries.length;
+  const uniqueDaysLogged = new Set(recentEntries.map(e => e.date)).size;
+  const totalTarget = targetMinutes * uniqueDaysLogged;
   const totalActual = recentEntries.reduce((sum, e) => sum + e.duration, 0);
   
   // Debt in hours
@@ -85,7 +86,7 @@ export function calculateLoggingStreak(entries: SleepEntry[]): number {
     return Math.round((date1.getTime() - date2.getTime()) / (1000 * 60 * 60 * 24));
   };
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = formatDate(new Date(), 'yyyy-MM-dd');
   const mostRecentStr = uniqueDates[0];
 
   // If the last log wasn't today or yesterday, streak is broken
