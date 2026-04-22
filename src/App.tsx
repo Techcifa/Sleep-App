@@ -30,8 +30,8 @@ import { useNotifications } from './hooks/useNotifications';
 import { calculateLoggingStreak } from './utils/analytics';
 import { fetchProfile, syncProfile } from './store';
 
-const SleepChart = lazy(() => import('./components/SleepChart'));
-const AIInsights = lazy(() => import('./components/AIInsights'));
+import SleepChart from './components/SleepChart';
+import AIInsights from './components/AIInsights';
 
 function PanelSkeleton({ message }: { message: string }) {
   return (
@@ -105,12 +105,11 @@ function App() {
       const data = await fetchEntries();
       setEntries(data);
       
-      // Lazily sync the user's latest streak to their public profile if they opted in
       fetchProfile().then(profile => {
         if (profile?.username) {
-          syncProfile(profile.username, calculateLoggingStreak(data));
+          syncProfile(profile.username, calculateLoggingStreak(data)).catch(console.error);
         }
-      });
+      }).catch(console.error);
     }
   }, [session]);
 
