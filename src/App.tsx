@@ -26,6 +26,7 @@ import AuthScreen from './components/AuthScreen';
 import GamificationWidget from './components/GamificationWidget';
 import HabitCorrelator from './components/HabitCorrelator';
 import CommunityLeaderboard from './components/CommunityLeaderboard';
+import HealthSyncWidget from './components/HealthSyncWidget';
 import { useNotifications } from './hooks/useNotifications';
 import { calculateLoggingStreak } from './utils/analytics';
 import { fetchProfile, syncProfile } from './store';
@@ -341,6 +342,7 @@ function App() {
             >
               {activeTab === 'dashboard' && (
                 <div className="space-y-8">
+                  <HealthSyncWidget onSyncComplete={refreshEntries} />
                   <GamificationWidget entries={entries} />
                   
                   <SleepTimerWidget 
