@@ -1,4 +1,5 @@
-import { Trash2, Edit2, Moon, Sun, Star } from 'lucide-react';
+import { useState } from 'react';
+import { Trash2, Edit2, Moon, Sun, Star, AlertCircle } from 'lucide-react';
 import { SleepEntry } from '../types';
 import { deleteEntry } from '../store';
 import { formatDate, parseDate } from '../utils/date';
@@ -23,10 +24,27 @@ function formatClockTime(time: string) {
 }
 
 export default function SleepHistory({ entries, onEdit, onDelete }: SleepHistoryProps) {
-  const handleDelete = (id: string) => {
-    if (confirm('Permanently remove this entry?')) {
-      deleteEntry(id);
-      onDelete(id);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteRequest = (id: string) => {
+    setConfirmDeleteId(id);
+    setDeleteError(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!confirmDeleteId) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteEntry(confirmDeleteId);
+      onDelete(confirmDeleteId);
+      setConfirmDeleteId(null);
+    } catch {
+      setDeleteError('Failed to delete entry. Please check your connection and try again.');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -63,6 +81,34 @@ export default function SleepHistory({ entries, onEdit, onDelete }: SleepHistory
 
   return (
     <div className="space-y-4">
+      {/* Inline confirmation dialog */}
+      {confirmDeleteId && (
+        <div className="bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800/40 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-start gap-2.5">
+            <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-rose-800 dark:text-rose-200">Permanently remove this entry?</p>
+              {deleteError && <p className="text-xs text-rose-600 dark:text-rose-400 mt-1">{deleteError}</p>}
+            </div>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <button
+              onClick={() => setConfirmDeleteId(null)}
+              className="px-4 py-2 rounded-lg text-sm font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white transition-colors"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </button>
+          </div>
+        </div>
+      )}
+
       {entries.map((entry) => (
         <div
           key={entry.id}
@@ -98,7 +144,7 @@ export default function SleepHistory({ entries, onEdit, onDelete }: SleepHistory
                 <Edit2 className="w-4 h-4 stroke-[1.5]" />
               </button>
               <button
-                onClick={() => handleDelete(entry.id)}
+                onClick={() => handleDeleteRequest(entry.id)}
                 className="p-2 rounded-lg text-stone-400 dark:text-stone-500 hover:text-rose-600 dark:hover:text-rose-500 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
                 title="Delete entry"
               >

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { Moon, Mail, Lock, Loader2, Sparkles, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Capacitor } from '@capacitor/core';
 
 export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);
@@ -45,7 +46,9 @@ export default function AuthScreen() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: Capacitor.isNativePlatform()
+            ? 'https://sleepaa.netlify.app'
+            : window.location.origin,
         }
       });
       if (error) throw error;

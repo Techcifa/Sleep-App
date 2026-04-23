@@ -69,7 +69,16 @@ export function useNotifications({ enabled, targetBedtime, windDownMinutes }: Us
     // immediate check on load
     checkTime();
 
-    return () => clearInterval(intervalId);
+    // Pause timer when app is backgrounded to save CPU
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') checkTime();
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [enabled, permission, targetBedtime, windDownMinutes]);
 
   const downloadCalendarEvent = () => {

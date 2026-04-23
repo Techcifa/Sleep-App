@@ -42,7 +42,8 @@ export default function CommunityLeaderboard({ entries }: CommunityLeaderboardPr
       } else {
         setIsUsernameSet(false);
       }
-    });
+      refreshBoards();
+    }).catch(console.error);
   }, [currentStreak]);
 
   const refreshBoards = async () => {

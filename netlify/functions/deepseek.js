@@ -1,7 +1,18 @@
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
+
 export const handler = async (event) => {
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 204, headers: CORS_HEADERS, body: '' };
+  }
+
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
+      headers: CORS_HEADERS,
       body: JSON.stringify({ error: 'Method Not Allowed' }),
     };
   }
@@ -22,6 +33,7 @@ export const handler = async (event) => {
   } catch (e) {
     return {
       statusCode: 400,
+      headers: CORS_HEADERS,
       body: JSON.stringify({ error: 'Invalid JSON payload. A sleep summary is required.' }),
     };
   }
@@ -30,6 +42,7 @@ export const handler = async (event) => {
   if (typeof summary !== 'string' || !summary.trim()) {
     return {
       statusCode: 400,
+      headers: CORS_HEADERS,
       body: JSON.stringify({ error: 'A sleep summary is required.' }),
     };
   }
@@ -65,6 +78,7 @@ export const handler = async (event) => {
     if (!response.ok) {
       return {
         statusCode: response.status,
+        headers: CORS_HEADERS,
         body: JSON.stringify({
           error: data?.error?.message || `DeepSeek request failed with status ${response.status}`,
         }),
@@ -75,18 +89,20 @@ export const handler = async (event) => {
     if (!content) {
       return {
         statusCode: 502,
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'DeepSeek returned an empty response.' }),
       };
     }
 
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
       body: JSON.stringify({ content }),
     };
   } catch (err) {
     return {
       statusCode: 502,
+      headers: CORS_HEADERS,
       body: JSON.stringify({
         error: 'Unable to reach DeepSeek right now.',
       }),

@@ -150,8 +150,8 @@ export default function SleepStats({ entries, targetHours, onEditTarget }: Sleep
           <div
             className="absolute h-full rounded-full bg-stone-400 dark:bg-stone-500"
             style={{
-              left: `${(stats.minDuration / 600) * 100}%`,
-              right: `${100 - (stats.maxDuration / 600) * 100}%`,
+              left: `${(Math.min(stats.minDuration, 600) / 600) * 100}%`,
+              right: `${100 - (Math.min(stats.maxDuration, 600) / 600) * 100}%`,
             }}
           />
         </div>

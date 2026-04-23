@@ -97,7 +97,7 @@ export default function HealthSyncWidget({ onSyncComplete }: Props) {
         const bedDateStr = data.bedTime.getDate() === data.wakeTime.getDate() ? 'same' : 'prev';
 
         const newEntry: SleepEntry = {
-          id: `hc-${date}-${Date.now()}`, // pseudo-unique id avoiding typical local uuid collisions
+          id: `hc-${date}-${Math.random().toString(36).slice(2)}`,
           date: date,
           duration: data.duration,
           bedTime: formatTimeStr(data.bedTime),

@@ -82,7 +82,8 @@ export default function SleepChart({ entries }: SleepChartProps) {
 
     const distribution = [0, 0, 0, 0, 0];
     sortedEntries.forEach((entry) => {
-      distribution[entry.quality - 1] += 1;
+      const qi = Math.max(0, Math.min(4, entry.quality - 1));
+      distribution[qi] += 1;
     });
 
     return [

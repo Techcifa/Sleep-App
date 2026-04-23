@@ -36,6 +36,7 @@ export default function SleepForm({ onEntrySaved, initialEntry, isFromTimer }: S
   const [customTagInput, setCustomTagInput] = useState('');
   const [calculatedDuration, setCalculatedDuration] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const [bedDate, setBedDate] = useState<'same' | 'prev'>('prev');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -94,6 +95,7 @@ export default function SleepForm({ onEntrySaved, initialEntry, isFromTimer }: S
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (calculatedDuration <= 0) return;
+    setSaveError('');
 
     setIsSubmitting(true);
 
@@ -129,9 +131,9 @@ export default function SleepForm({ onEntrySaved, initialEntry, isFromTimer }: S
         setTags([]);
         setBedDate('prev');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      // Optional: add a user-visible error state here
+      setSaveError(err?.message || 'Failed to save entry. Please check your connection and try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -298,6 +300,12 @@ export default function SleepForm({ onEntrySaved, initialEntry, isFromTimer }: S
             className="w-full bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-stone-800 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:ring-2 focus:ring-stone-400 dark:focus:ring-stone-500 focus:border-transparent outline-none transition-all resize-none"
           />
         </div>
+
+        {saveError && (
+          <div className="flex items-start gap-2 p-3 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800/30 rounded-xl">
+            <span className="text-sm text-rose-700 dark:text-rose-300">{saveError}</span>
+          </div>
+        )}
 
         <button
           type="submit"

@@ -82,7 +82,7 @@ export default function GamificationWidget({ entries }: GamificationWidgetProps)
                   </div>
                   
                   {/* Tooltip on Hover */}
-                  <div className="absolute top-16 sm:top-18 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 w-40 mt-2">
+                  <div className="hidden group-hover:block fixed bottom-24 left-1/2 -translate-x-1/2 z-50 w-44 pointer-events-none">
                     <div className="bg-stone-900 dark:bg-stone-800 text-white rounded-lg p-2.5 text-xs text-center shadow-xl border border-stone-800 dark:border-stone-700">
                       <div className="font-medium mb-1">{badge.name}</div>
                       <div className="text-stone-400 text-[10px] leading-tight">{badge.description}</div>
