@@ -47,7 +47,7 @@ export default function SettingsModal({
     if (isOpen) {
       fetchProfile().then(p => {
         if (p?.username) setUsername(p.username);
-      });
+      }).catch(console.error);
     } else {
       setUsernameError('');
     }

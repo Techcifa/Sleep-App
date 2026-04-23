@@ -90,7 +90,7 @@ function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setIsInitializing(false);
-    });
+    }).catch(console.error);
 
     const {
       data: { subscription },

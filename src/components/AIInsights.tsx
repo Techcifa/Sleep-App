@@ -2,6 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { Sparkles, Loader2, AlertCircle, RefreshCw, Server } from 'lucide-react';
 import { SleepEntry } from '../types';
 import { parseDate } from '../utils/date';
+import { Capacitor } from '@capacitor/core';
+
+// On native Android, relative paths like '/api/...' resolve on localhost, not Netlify.
+// We must use an absolute URL when running inside the Capacitor WebView.
+const API_BASE = Capacitor.isNativePlatform() ? 'https://sleepaa.netlify.app' : '';
 
 function formatDuration(minutes: number): string {
   const hours = Math.floor(minutes / 60);
@@ -146,7 +151,7 @@ export default function AIInsights({ entries }: AIInsightsProps) {
 
     const checkServer = async () => {
       try {
-        const response = await fetch('/api/health');
+        const response = await fetch(`${API_BASE}/api/health`);
         const data = await response.json();
         if (!cancelled) {
           setServerReady(Boolean(data?.providerConfigured));
@@ -176,7 +181,7 @@ export default function AIInsights({ entries }: AIInsightsProps) {
     setInsights('');
 
     try {
-      const response = await fetch('/api/deepseek', {
+      const response = await fetch(`${API_BASE}/api/deepseek`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

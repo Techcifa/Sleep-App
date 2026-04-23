@@ -17,16 +17,16 @@ function inferBedDate(entry: SleepEntry): 'same' | 'prev' {
 
 function normalizeEntry(entry: any): SleepEntry {
   return {
-    id: entry.id,
-    date: entry.date,
-    bedTime: entry.bedTime,
+    id: entry.id || 'err-id',
+    date: typeof entry.date === 'string' ? entry.date : new Date().toISOString().split('T')[0],
+    bedTime: typeof entry.bedTime === 'string' && entry.bedTime.includes(':') ? entry.bedTime : '00:00',
     bedDate: inferBedDate(entry),
-    wakeTime: entry.wakeTime,
-    duration: entry.duration,
-    quality: entry.quality,
+    wakeTime: typeof entry.wakeTime === 'string' && entry.wakeTime.includes(':') ? entry.wakeTime : '00:00',
+    duration: typeof entry.duration === 'number' ? entry.duration : 0,
+    quality: typeof entry.quality === 'number' ? entry.quality : 3,
     notes: entry.notes || '',
     tags: Array.isArray(entry.tags) ? entry.tags : [],
-    createdAt: Number(entry.createdAt),
+    createdAt: Number(entry.createdAt) || Date.now(),
   };
 }
 

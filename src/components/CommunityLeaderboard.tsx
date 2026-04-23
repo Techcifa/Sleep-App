@@ -38,11 +38,10 @@ export default function CommunityLeaderboard({ entries }: CommunityLeaderboardPr
         setUsername(profile.username);
         setIsUsernameSet(true);
         // Automatically resync their active local streak to the cloud if they have a username!
-        syncProfile(profile.username, currentStreak);
+        syncProfile(profile.username, currentStreak).catch(console.error);
       } else {
         setIsUsernameSet(false);
       }
-      refreshBoards();
     });
   }, [currentStreak]);
 
