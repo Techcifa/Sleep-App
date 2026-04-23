@@ -15,10 +15,15 @@ export function useNotifications({ enabled, targetBedtime, windDownMinutes }: Us
   }, []);
 
   const requestPermission = async () => {
-    if (!('Notification' in window)) return false;
-    const perm = await Notification.requestPermission();
-    setPermission(perm);
-    return perm === 'granted';
+    try {
+      if (!('Notification' in window)) return false;
+      const perm = await Notification.requestPermission();
+      setPermission(perm);
+      return perm === 'granted';
+    } catch (e) {
+      console.warn('Notification API not supported in this WebView context:', e);
+      return false;
+    }
   };
 
   useEffect(() => {
@@ -46,10 +51,14 @@ export function useNotifications({ enabled, targetBedtime, windDownMinutes }: Us
       
       // If we are tightly within a 2-minute window past the alert frame, and haven't fired:
       if (diffMs >= 0 && diffMs <= 120000) {
-        new Notification('Wind-Down Time 🌙', {
-          body: `Time to start unwinding! It's exactly ${windDownMinutes} minutes before your targeted bedtime. Dim the lights and relax!`,
-          icon: '/icon.svg',
-        });
+        try {
+          new Notification('Wind-Down Time 🌙', {
+            body: `Time to start unwinding! It's exactly ${windDownMinutes} minutes before your targeted bedtime. Dim the lights and relax!`,
+            icon: '/icon.svg',
+          });
+        } catch (e) {
+          console.warn('Failed to fire native notification:', e);
+        }
         lastNotifiedDate = todayStr;
         localStorage.setItem('last_notified_date', todayStr);
       }
