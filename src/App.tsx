@@ -87,18 +87,36 @@ function App() {
   });
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setIsInitializing(false);
-    }).catch(console.error);
+    // On Android, Capacitor Preferences is async. Supabase will emit the first
+    // INITIAL_SESSION event only after it has finished reading from native storage.
+    // We therefore must NOT set isInitializing=false from getSession() — that fires
+    // before the async read completes and falsely returns null, showing the login screen.
+    // Instead we mark initialisation done on the first onAuthStateChange event.
+    let initialised = false;
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (!initialised) {
+        initialised = true;
+        setIsInitializing(false);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    // Safety fallback: if the auth event never fires within 4 seconds
+    // (e.g. no network and no cached session), stop the spinner anyway.
+    const fallback = setTimeout(() => {
+      if (!initialised) {
+        initialised = true;
+        setIsInitializing(false);
+      }
+    }, 4000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(fallback);
+    };
   }, []);
 
   const refreshEntries = useCallback(async () => {

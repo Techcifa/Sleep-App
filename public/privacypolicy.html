@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy – Rest & Renewal</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #fafaf9;
+      color: #292524;
+      line-height: 1.7;
+      padding: 32px 20px 60px;
+    }
+    .container { max-width: 680px; margin: 0 auto; }
+    .logo {
+      width: 48px; height: 48px;
+      background: #1c1917;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+    }
+    .logo svg { width: 26px; height: 26px; color: #fafaf9; fill: currentColor; }
+    h1 { font-size: 1.75rem; font-weight: 600; margin-bottom: 6px; }
+    .updated { font-size: 0.8rem; color: #78716c; margin-bottom: 36px; }
+    h2 { font-size: 1.1rem; font-weight: 600; margin: 28px 0 10px; color: #1c1917; }
+    p { color: #57534e; margin-bottom: 12px; }
+    ul { color: #57534e; padding-left: 20px; margin-bottom: 12px; }
+    ul li { margin-bottom: 6px; }
+    .highlight {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin: 20px 0;
+    }
+    .highlight p { color: #166534; margin: 0; font-weight: 500; }
+    a { color: #3730a3; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid #e7e5e4; font-size: 0.8rem; color: #a8a29e; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </div>
+
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: April 24, 2026</p>
+
+    <p>
+      <strong>Rest &amp; Renewal</strong> ("the App", "we", "our") is a personal sleep tracking
+      journal designed to help you understand and improve your sleep habits. We are committed to
+      protecting your privacy and being fully transparent about how we handle your data.
+    </p>
+
+    <div class="highlight">
+      <p>🔒 Your health and sleep data is never sold, shared with advertisers, or used for any purpose outside of providing your personal sleep insights.</p>
+    </div>
+
+    <h2>1. Information We Collect</h2>
+    <p>We collect only the information you explicitly provide or consent to share:</p>
+    <ul>
+      <li><strong>Account Information:</strong> Your email address for authentication (via Supabase).</li>
+      <li><strong>Sleep Logs:</strong> Bedtime, wake time, sleep duration, quality ratings, and optional notes that you enter manually.</li>
+      <li><strong>Habit Tags:</strong> Optional lifestyle tags (e.g. Caffeine, Exercise) you attach to your sleep entries.</li>
+      <li><strong>Health Connect Data (Android, optional):</strong> With your explicit permission, we read sleep session data from Android Health Connect to automatically fill in your sleep journal. See Section 2 for full details.</li>
+    </ul>
+
+    <h2>2. Android Health Connect – Sleep Data</h2>
+    <p>
+      The App optionally integrates with <strong>Android Health Connect</strong> to automatically
+      import your sleep data recorded by your phone, smartwatch, or fitness tracker.
+    </p>
+    <p><strong>What data we access:</strong></p>
+    <ul>
+      <li>Sleep session start and end times</li>
+      <li>Sleep stage classifications (light, deep, REM, awake) when available</li>
+    </ul>
+    <p><strong>How we use this data:</strong></p>
+    <ul>
+      <li>To automatically create sleep journal entries on your behalf, saving you manual effort.</li>
+      <li>To calculate sleep statistics and trends visible only to you inside the App.</li>
+    </ul>
+    <p><strong>What we do NOT do with your health data:</strong></p>
+    <ul>
+      <li>We do <strong>not</strong> sell or share your health data with any third party.</li>
+      <li>We do <strong>not</strong> use your health data for advertising or profiling.</li>
+      <li>We do <strong>not</strong> access Health Connect data in the background without your explicit action.</li>
+      <li>We do <strong>not</strong> store raw Health Connect data on our servers beyond what you see in your journal.</li>
+    </ul>
+    <p>
+      Health Connect permissions are entirely optional. You can revoke them at any time by opening
+      <strong>Settings → Apps → Health Connect → App Permissions → Rest &amp; Renewal</strong> on
+      your Android device. Revoking access does not delete already-imported journal entries.
+    </p>
+
+    <h2>3. Data Storage &amp; Security</h2>
+    <p>
+      Your sleep journal entries are stored securely in <strong>Supabase</strong>, a cloud database
+      provider, using row-level security. Only your authenticated account can read or modify your
+      data. We use encrypted HTTPS connections for all data transfer.
+    </p>
+
+    <h2>4. AI Analysis (Optional)</h2>
+    <p>
+      If you use the AI Sleep Analysis feature, a anonymized summary of your sleep statistics
+      (averages, trends — never raw times or personal identifiers) is sent to the <strong>DeepSeek API</strong>
+      to generate insights. This summary is not stored by us after the response is received.
+    </p>
+
+    <h2>5. Data You Can Delete</h2>
+    <p>
+      You can delete individual sleep entries at any time inside the App. To fully delete your
+      account and all associated data, contact us at the email below and we will process your
+      request within 30 days.
+    </p>
+
+    <h2>6. Children's Privacy</h2>
+    <p>
+      Rest &amp; Renewal is not directed at individuals under 13 years of age. We do not knowingly
+      collect personal data from children.
+    </p>
+
+    <h2>7. Changes to This Policy</h2>
+    <p>
+      We may update this Privacy Policy periodically. Any significant changes will be communicated
+      via an in-app notice. Continued use of the App after changes constitutes acceptance of the
+      updated policy.
+    </p>
+
+    <h2>8. Contact Us</h2>
+    <p>
+      If you have any questions about this Privacy Policy or your data, please contact us at:<br/>
+      <a href="mailto:support@sleepaa.netlify.app">support@sleepaa.netlify.app</a>
+    </p>
+
+    <footer>
+      &copy; 2026 Rest &amp; Renewal. All rights reserved.<br/>
+      <a href="https://sleepaa.netlify.app">sleepaa.netlify.app</a>
+    </footer>
+  </div>
+</body>
+</html>

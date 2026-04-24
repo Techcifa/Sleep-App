@@ -4,4 +4,5 @@
     <string name="title_activity_main">Rest &amp; Renewal</string>
     <string name="package_name">com.sleep.tracker</string>
     <string name="custom_url_scheme">com.sleep.tracker</string>
+    <string name="health_connect_privacy_policy_url">https://sleepaa.netlify.app/privacypolicy.html</string>
 </resources>
