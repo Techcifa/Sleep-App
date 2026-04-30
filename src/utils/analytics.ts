@@ -3,20 +3,23 @@ import { isAfter, parseDate, subDays, parseTime, formatDate } from './date';
 
 export function calculateSleepDebt(entries: SleepEntry[], targetHours: number, trailingDays: number = 7): number {
   if (!entries || entries.length === 0) return 0;
-  
-  const today = new Date();
-  const thresholdDate = subDays(today, trailingDays);
-  
-  const recentEntries = entries.filter(e => isAfter(parseDate(e.date), thresholdDate) || parseDate(e.date).getTime() === thresholdDate.getTime());
-  
+
+  const todayStart = parseDate(formatDate(new Date(), 'yyyy-MM-dd'));
+  const windowDays = Math.max(1, Math.floor(trailingDays));
+  const thresholdDate = subDays(todayStart, windowDays - 1);
+
+  const recentEntries = entries.filter((entry) => {
+    const day = parseDate(entry.date);
+    return (isAfter(day, thresholdDate) || day.getTime() === thresholdDate.getTime()) &&
+      (day.getTime() <= todayStart.getTime());
+  });
+
   if (recentEntries.length === 0) return 0;
-  
+
   const targetMinutes = targetHours * 60;
-  const uniqueDaysLogged = new Set(recentEntries.map(e => e.date)).size;
-  const totalTarget = targetMinutes * uniqueDaysLogged;
-  const totalActual = recentEntries.reduce((sum, e) => sum + e.duration, 0);
-  
-  // Debt in hours
+  const totalTarget = targetMinutes * windowDays;
+  const totalActual = recentEntries.reduce((sum, entry) => sum + entry.duration, 0);
+
   return (totalTarget - totalActual) / 60;
 }
 

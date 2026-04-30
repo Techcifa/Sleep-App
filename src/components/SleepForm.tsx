@@ -283,7 +283,7 @@ export default function SleepForm({ onEntrySaved, initialEntry, isFromTimer }: S
             onChange={(e) => setCustomTagInput(e.target.value)}
             onKeyDown={handleAddCustomTag}
             placeholder="Type custom tag and press Enter..."
-            className="w-full bg-stone-50 dark:bg-stone-800 border fill-transparent border-stone-200 dark:border-stone-700 rounded-xl px-4 py-2.5 text-sm text-stone-800 dark:text-stone-100 placeholder-stone-400 focus:ring-2 focus:ring-stone-400 focus:border-transparent outline-none transition-all"
+            className="w-full bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-2.5 text-sm text-stone-800 dark:text-stone-100 placeholder-stone-400 focus:ring-2 focus:ring-stone-400 focus:border-transparent outline-none transition-all"
           />
         </div>
 

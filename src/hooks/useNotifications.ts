@@ -9,6 +9,9 @@ interface UseNotificationsProps {
 export function useNotifications({ enabled, targetBedtime, windDownMinutes }: UseNotificationsProps) {
   const [permission, setPermission] = useState<NotificationPermission>('default');
 
+  const localDateKey = (date: Date) =>
+    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
   useEffect(() => {
     if (!('Notification' in window)) return;
     setPermission(Notification.permission);
@@ -33,7 +36,7 @@ export function useNotifications({ enabled, targetBedtime, windDownMinutes }: Us
 
     const checkTime = () => {
       const now = new Date();
-      const todayStr = now.toISOString().split('T')[0];
+      const todayStr = localDateKey(now);
       
       // If we already sent it today, do not spam.
       if (lastNotifiedDate === todayStr) return;

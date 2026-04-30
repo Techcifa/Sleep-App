@@ -3,6 +3,7 @@ import { Sparkles, Loader2, AlertCircle, RefreshCw, Server } from 'lucide-react'
 import { SleepEntry } from '../types';
 import { parseDate } from '../utils/date';
 import { Capacitor } from '@capacitor/core';
+import { supabase } from '../lib/supabase';
 
 // On native Android, relative paths like '/api/...' resolve on localhost, not Netlify.
 // We must use an absolute URL when running inside the Capacitor WebView.
@@ -181,10 +182,19 @@ export default function AIInsights({ entries }: AIInsightsProps) {
     setInsights('');
 
     try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        throw new Error('Your session has expired. Please sign in again before running AI analysis.');
+      }
+
       const response = await fetch(`${API_BASE}/api/deepseek`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           summary: buildSleepSummary(entries),
@@ -295,6 +305,26 @@ export default function AIInsights({ entries }: AIInsightsProps) {
                   <p key={index} className="text-sm font-medium text-stone-800 dark:text-stone-100 mt-3 mb-1">
                     {line.replace(/\*\*/g, '')}
                   </p>
+                );
+              }
+
+              if (line.startsWith('- ') || line.startsWith('* ')) {
+                const content = line.slice(2);
+                const parts = content.split(/(\*\*[^*]+\*\*)/);
+                return (
+                  <ul key={index} className="my-0.5 pl-4 list-disc">
+                    <li className="text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+                      {parts.map((part, partIndex) =>
+                        part.startsWith('**') && part.endsWith('**') ? (
+                          <span key={partIndex} className="font-medium text-stone-800 dark:text-stone-100">
+                            {part.replace(/\*\*/g, '')}
+                          </span>
+                        ) : (
+                          <span key={partIndex}>{part}</span>
+                        )
+                      )}
+                    </li>
+                  </ul>
                 );
               }
 

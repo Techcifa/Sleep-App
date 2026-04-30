@@ -81,8 +81,8 @@ export default function GamificationWidget({ entries }: GamificationWidgetProps)
                     )}
                   </div>
                   
-                  {/* Tooltip on Hover */}
-                  <div className="hidden group-hover:block fixed bottom-24 left-1/2 -translate-x-1/2 z-50 w-44 pointer-events-none">
+                  {/* Tooltip on Hover — anchored above the badge */}
+                  <div className="hidden group-hover:block absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 w-44 pointer-events-none">
                     <div className="bg-stone-900 dark:bg-stone-800 text-white rounded-lg p-2.5 text-xs text-center shadow-xl border border-stone-800 dark:border-stone-700">
                       <div className="font-medium mb-1">{badge.name}</div>
                       <div className="text-stone-400 text-[10px] leading-tight">{badge.description}</div>
@@ -92,6 +92,8 @@ export default function GamificationWidget({ entries }: GamificationWidgetProps)
                         </div>
                       )}
                     </div>
+                    {/* Tooltip arrow */}
+                    <div className="w-2 h-2 bg-stone-900 dark:bg-stone-800 rotate-45 mx-auto -mt-1 border-r border-b border-stone-800 dark:border-stone-700" />
                   </div>
 
                   <span className={`text-[10px] sm:text-xs font-medium text-center leading-tight sm:leading-tight px-1 ${isUnlocked ? 'text-stone-700 dark:text-stone-300' : 'text-stone-400 dark:text-stone-600'}`}>

@@ -374,7 +374,7 @@ function App() {
                     onEditTarget={() => setIsSettingsOpen(true)}
                   />
                   <Suspense fallback={<PanelSkeleton message="Loading your sleep charts..." />}>
-                    <SleepChart entries={entries} />
+                    <SleepChart entries={entries} days={7} />
                   </Suspense>
                 </div>
               )}
@@ -434,7 +434,7 @@ function App() {
                     )}
                   </div>
                   <Suspense fallback={<PanelSkeleton message="Loading your sleep charts..." />}>
-                    <SleepChart entries={entries} />
+                    <SleepChart entries={entries} days={14} />
                   </Suspense>
                 </div>
               )}

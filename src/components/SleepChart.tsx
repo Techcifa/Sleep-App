@@ -4,6 +4,7 @@ import { formatDate, parseDate } from '../utils/date';
 
 interface SleepChartProps {
   entries: SleepEntry[];
+  days?: number;
 }
 
 function compareEntries(a: SleepEntry, b: SleepEntry) {
@@ -42,7 +43,7 @@ function StatCard({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-export default function SleepChart({ entries }: SleepChartProps) {
+export default function SleepChart({ entries, days = 14 }: SleepChartProps) {
   const sortedEntries = useMemo(() => [...entries].sort(compareEntries), [entries]);
 
   const chartData = useMemo(() => {
@@ -56,7 +57,7 @@ export default function SleepChart({ entries }: SleepChartProps) {
 
     return [...grouped.entries()]
       .sort(([a], [b]) => (a < b ? 1 : -1))
-      .slice(0, 14)
+      .slice(0, days)
       .reverse()
       .map(([date, dayEntries]) => {
         const avgDuration = Math.round(
