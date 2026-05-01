@@ -1,4 +1,4 @@
-import { Suspense, useState, useEffect, useCallback } from 'react';
+import { Suspense, useState, useEffect, useCallback, lazy } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Moon,
@@ -31,8 +31,8 @@ import { useNotifications } from './hooks/useNotifications';
 import { calculateLoggingStreak } from './utils/analytics';
 import { fetchProfile, syncProfile } from './store';
 
-import SleepChart from './components/SleepChart';
-import AIInsights from './components/AIInsights';
+const SleepChart = lazy(() => import('./components/SleepChart'));
+const AIInsights = lazy(() => import('./components/AIInsights'));
 
 function PanelSkeleton({ message }: { message: string }) {
   return (
@@ -95,6 +95,10 @@ function App() {
     // Instead we mark initialisation done on the first onAuthStateChange event.
     let initialised = false;
 
+    // Listen for global open-settings events (from Guest Mode CTA)
+    const handleOpenSettings = () => setIsSettingsOpen(true);
+    document.addEventListener('open-settings', handleOpenSettings);
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -105,7 +109,7 @@ function App() {
       }
     });
 
-    // Safety fallback: if the auth event never fires within 4 seconds
+    // Safety fallback: if the auth event never fires within 8 seconds
     // (e.g. no network and no cached session), stop the spinner anyway.
     const fallback = setTimeout(() => {
       if (!initialised) {
@@ -117,6 +121,7 @@ function App() {
     return () => {
       subscription.unsubscribe();
       clearTimeout(fallback);
+      document.removeEventListener('open-settings', handleOpenSettings);
     };
   }, []);
 
@@ -355,7 +360,7 @@ function App() {
             >
               {activeTab === 'dashboard' && (
                 <div className="space-y-8">
-                  <HealthSyncWidget onSyncComplete={refreshEntries} />
+                  <HealthSyncWidget onSyncComplete={refreshEntries} session={session} />
                   <GamificationWidget entries={entries} />
                   
                   <SleepTimerWidget 

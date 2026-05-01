@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { RefreshCw, Activity, CheckCircle2, AlertCircle, ShieldCheck, ChevronRight, X } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
 import { Health } from '@capgo/capacitor-health';
+import { Session } from '@supabase/supabase-js';
 import { addEntry, fetchEntries } from '../store';
 import { SleepEntry } from '../types';
 
@@ -12,8 +13,8 @@ interface Props {
 
 const HC_SHOWN_KEY = 'health_connect_prompted';
 
-export default function HealthSyncWidget({ onSyncComplete }: Props) {
-  const [isNative, setIsNative] = useState(false);
+export default function HealthSyncWidget({ onSyncComplete, session }: Props & { session: Session | null }) {
+  const isNative = Capacitor.isNativePlatform();
   const [isSyncing, setIsSyncing] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -21,9 +22,6 @@ export default function HealthSyncWidget({ onSyncComplete }: Props) {
   const [uiState, setUiState] = useState<'idle' | 'rationale' | 'done'>('idle');
 
   useEffect(() => {
-    if (!Capacitor.isNativePlatform()) return;
-    setIsNative(true);
-
     // Auto-show the rationale dialog on first launch once
     Preferences.get({ key: HC_SHOWN_KEY }).then(({ value }) => {
       if (!value) {
@@ -32,7 +30,8 @@ export default function HealthSyncWidget({ onSyncComplete }: Props) {
     });
   }, []);
 
-  if (!isNative) return null;
+  // Only show when logged in
+  if (!session) return null;
 
   // ── Dismiss rationale permanently ──────────────────────────────────────────
   const handleDismissRationale = async () => {
@@ -52,6 +51,12 @@ export default function HealthSyncWidget({ onSyncComplete }: Props) {
     setIsSyncing(true);
     setStatusMsg('');
     setErrorMsg('');
+
+    if (!isNative) {
+      setErrorMsg('Health Connect is only available on native Android devices. (Debug: isNative evaluated to false)');
+      setIsSyncing(false);
+      return;
+    }
 
     try {
       // 1. Request Permissions

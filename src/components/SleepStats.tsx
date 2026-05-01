@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Clock, TrendingUp, Star, Award, HeartPulse, Moon, Sun, Sunrise, Sunset, Zap } from 'lucide-react';
+import { Clock, TrendingUp, Star, Award, HeartPulse, Moon, Sun, Sunrise, Zap } from 'lucide-react';
 import { SleepEntry } from '../types';
 import { isAfter, parseDate, subDays } from '../utils/date';
 import { calculateSleepDebt, detectChronotype, calculateConsistency } from '../utils/analytics';

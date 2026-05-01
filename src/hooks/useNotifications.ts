@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 interface UseNotificationsProps {
   enabled: boolean;
@@ -7,30 +9,82 @@ interface UseNotificationsProps {
 }
 
 export function useNotifications({ enabled, targetBedtime, windDownMinutes }: UseNotificationsProps) {
-  const [permission, setPermission] = useState<NotificationPermission>('default');
+  const [permission, setPermission] = useState<string>('default');
 
   const localDateKey = (date: Date) =>
     `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
   useEffect(() => {
-    if (!('Notification' in window)) return;
-    setPermission(Notification.permission);
+    const checkPerms = async () => {
+      if (Capacitor.isNativePlatform()) {
+        const { display } = await LocalNotifications.checkPermissions();
+        setPermission(display);
+      } else {
+        if (!('Notification' in window)) return;
+        setPermission(Notification.permission);
+      }
+    };
+    checkPerms();
   }, []);
 
   const requestPermission = async () => {
     try {
-      if (!('Notification' in window)) return false;
-      const perm = await Notification.requestPermission();
-      setPermission(perm);
-      return perm === 'granted';
+      if (Capacitor.isNativePlatform()) {
+        const result = await LocalNotifications.requestPermissions();
+        setPermission(result.display);
+        return result.display === 'granted';
+      } else {
+        if (!('Notification' in window)) return false;
+        const perm = await Notification.requestPermission();
+        setPermission(perm);
+        return perm === 'granted';
+      }
     } catch (e) {
-      console.warn('Notification API not supported in this WebView context:', e);
+      console.warn('Notification API error:', e);
       return false;
     }
   };
 
   useEffect(() => {
-    if (!enabled || permission !== 'granted' || !targetBedtime) return;
+    if (permission !== 'granted') return;
+
+    // NATIVE SCHEDULING
+    if (Capacitor.isNativePlatform()) {
+      const manageNativeSchedule = async () => {
+        // Clear any existing schedules first
+        await LocalNotifications.cancel({ notifications: [{ id: 1 }] });
+        
+        if (!enabled || !targetBedtime) return;
+
+        const [targetHours, targetMins] = targetBedtime.split(':').map(Number);
+        const targetTime = new Date();
+        targetTime.setHours(targetHours, targetMins, 0, 0);
+        const alertTime = new Date(targetTime.getTime() - windDownMinutes * 60000);
+
+        await LocalNotifications.schedule({
+          notifications: [
+            {
+              title: 'Wind-Down Time 🌙',
+              body: `Time to start unwinding! It's exactly ${windDownMinutes} minutes before your targeted bedtime. Dim the lights and relax!`,
+              id: 1,
+              schedule: { 
+                on: { 
+                  hour: alertTime.getHours(), 
+                  minute: alertTime.getMinutes() 
+                }, 
+                allowWhileIdle: true 
+              },
+            }
+          ]
+        });
+      };
+      
+      manageNativeSchedule();
+      return;
+    }
+
+    // WEB FALLBACK (setInterval approach)
+    if (!enabled || !targetBedtime) return;
 
     let lastNotifiedDate = localStorage.getItem('last_notified_date');
 
@@ -38,21 +92,15 @@ export function useNotifications({ enabled, targetBedtime, windDownMinutes }: Us
       const now = new Date();
       const todayStr = localDateKey(now);
       
-      // If we already sent it today, do not spam.
       if (lastNotifiedDate === todayStr) return;
 
       const [targetHours, targetMins] = targetBedtime.split(':').map(Number);
-      
       const targetTime = new Date();
       targetTime.setHours(targetHours, targetMins, 0, 0);
-
-      // We want to notify exactly `windDownMinutes` before targetTime
       const alertTime = new Date(targetTime.getTime() - windDownMinutes * 60000);
 
-      // If the alertTime is within the last minute, fire it
       const diffMs = now.getTime() - alertTime.getTime();
       
-      // If we are tightly within a 2-minute window past the alert frame, and haven't fired:
       if (diffMs >= 0 && diffMs <= 120000) {
         try {
           new Notification('Wind-Down Time 🌙', {
@@ -67,12 +115,9 @@ export function useNotifications({ enabled, targetBedtime, windDownMinutes }: Us
       }
     };
 
-    const intervalId = setInterval(checkTime, 60000); // Check every 60 seconds
-    
-    // immediate check on load
+    const intervalId = setInterval(checkTime, 60000);
     checkTime();
 
-    // Pause timer when app is backgrounded to save CPU
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') checkTime();
     };

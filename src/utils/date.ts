@@ -32,7 +32,7 @@ export function parseDate(date: string) {
   return new Date(year, month - 1, day);
 }
 
-export function formatDate(date: Date, pattern: 'yyyy-MM-dd' | 'MMM d' | 'EEE' | 'EEEE, MMMM d') {
+export function formatDate(date: Date, pattern: 'yyyy-MM-dd' | 'MMM d' | 'EEE' | 'EEEE, MMMM d' | 'h:mm a') {
   const year = date.getFullYear();
   const month = date.getMonth();
   const day = date.getDate();
@@ -46,6 +46,12 @@ export function formatDate(date: Date, pattern: 'yyyy-MM-dd' | 'MMM d' | 'EEE' |
       return WEEKDAY_SHORT[date.getDay()];
     case 'EEEE, MMMM d':
       return `${WEEKDAYS[date.getDay()]}, ${MONTHS[month]} ${day}`;
+    case 'h:mm a':
+      const hours = date.getHours();
+      const mins = date.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const h12 = hours % 12 || 12;
+      return `${h12}:${String(mins).padStart(2, '0')} ${ampm}`;
   }
 }
 

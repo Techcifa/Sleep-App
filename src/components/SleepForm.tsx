@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Moon, Sun, Star, FileText, Plus, Check, Tag } from 'lucide-react';
+import { Calendar, Moon, Sun, Star, FileText, Plus, Check, Tag, Info, LogIn, Loader2 } from 'lucide-react';
 import { SleepEntry } from '../types';
 import { addEntry, updateEntry } from '../store';
 import { addDays, formatDate, isAfter, parseTime } from '../utils/date';
-import { Loader2 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface SleepFormProps {
   onEntrySaved: (entry: SleepEntry) => void;
@@ -39,6 +39,13 @@ export default function SleepForm({ onEntrySaved, initialEntry, isFromTimer }: S
   const [saveError, setSaveError] = useState('');
   const [bedDate, setBedDate] = useState<'same' | 'prev'>('prev');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+    });
+  }, []);
 
   const commonTags = ['☕ Caffeine', '🍷 Alcohol', '🏃‍♂️ Exercise', '📱 Screens', '🧘 Meditation', '🍔 Heavy Meal'];
 
@@ -146,6 +153,29 @@ export default function SleepForm({ onEntrySaved, initialEntry, isFromTimer }: S
 
   return (
     <div className="max-w-lg mx-auto">
+      {!isAuthenticated && (
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/30 rounded-2xl p-4 sm:p-5 mb-6 flex items-start gap-3">
+          <div className="p-2 bg-amber-100 dark:bg-amber-800 rounded-full shrink-0">
+            <Info className="w-4 h-4 text-amber-700 dark:text-amber-400" />
+          </div>
+          <div>
+            <h4 className="text-sm font-medium text-amber-900 dark:text-amber-100 mb-1">Guest Mode</h4>
+            <p className="text-xs text-amber-800/80 dark:text-amber-400/80 leading-relaxed mb-3">
+              You are currently logging as a guest. Your data will not be saved to the cloud until you sign in.
+            </p>
+            <button 
+              type="button"
+              onClick={() => {
+                document.dispatchEvent(new CustomEvent('open-settings'));
+              }}
+              className="flex items-center gap-2 text-xs font-bold text-amber-900 dark:text-amber-200 uppercase tracking-wider hover:underline"
+            >
+              <LogIn className="w-3 h-3" />
+              Sign in now
+            </button>
+          </div>
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="bg-white dark:bg-stone-900 rounded-2xl p-4 sm:p-6 border border-stone-200 dark:border-stone-800 shadow-sm">
           <label className="flex items-center gap-2 text-sm font-medium text-stone-600 dark:text-stone-400 mb-3">

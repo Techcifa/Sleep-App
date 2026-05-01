@@ -1,5 +1,5 @@
 import { SleepEntry } from '../types';
-import { isAfter, parseDate, subDays, parseTime, formatDate } from './date';
+import { isAfter, parseDate, subDays, formatDate } from './date';
 
 export function calculateSleepDebt(entries: SleepEntry[], targetHours: number, trailingDays: number = 7): number {
   if (!entries || entries.length === 0) return 0;
