@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useEffect, useCallback } from 'react';
+import { Suspense, useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Moon,
@@ -22,7 +22,7 @@ import SleepHistory from './components/SleepHistory';
 import SleepStats from './components/SleepStats';
 import SleepTimerWidget from './components/SleepTimerWidget';
 import SettingsModal from './components/SettingsModal';
-import AuthScreen from './components/AuthScreen';
+import SplashScreen from './components/SplashScreen';
 import GamificationWidget from './components/GamificationWidget';
 import HabitCorrelator from './components/HabitCorrelator';
 import CommunityLeaderboard from './components/CommunityLeaderboard';
@@ -54,6 +54,7 @@ function PanelSkeleton({ message }: { message: string }) {
 function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
   const [activeTab, setActiveTab] = useState<ViewTab>('dashboard');
   const [entries, setEntries] = useState<SleepEntry[]>([]);
   const [editingEntry, setEditingEntry] = useState<SleepEntry | null>(null);
@@ -111,7 +112,7 @@ function App() {
         initialised = true;
         setIsInitializing(false);
       }
-    }, 4000);
+    }, 8000);
 
     return () => {
       subscription.unsubscribe();
@@ -243,16 +244,10 @@ function App() {
     },
   ];
 
-  if (isInitializing) {
+  if (showSplash || isInitializing) {
     return (
-      <div className="min-h-screen bg-stone-50 dark:bg-stone-950 flex items-center justify-center">
-        <div className="animate-pulse w-12 h-12 bg-stone-200 dark:bg-stone-800 rounded-full" />
-      </div>
+      <SplashScreen onComplete={() => setShowSplash(false)} />
     );
-  }
-
-  if (!session) {
-    return <AuthScreen />;
   }
 
   return (
@@ -487,7 +482,7 @@ function App() {
         onNotificationsToggle={async (enabled) => {
           if (enabled && permission !== 'granted') {
             const granted = await requestPermission();
-            if (!granted) return; // if denied, don't toggle on
+            if (!granted) return;
           }
           setNotificationsEnabled(enabled);
           localStorage.setItem('notifications_enabled', String(enabled));
@@ -503,6 +498,7 @@ function App() {
           localStorage.setItem('wind_down_minutes', String(val));
         }}
         onCalendarExport={downloadCalendarEvent}
+        session={session}
       />
     </div>
   );
